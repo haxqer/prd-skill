@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>&lt;Feature&gt; PRD — Annotated HTML template</title>
+<!--
+  HAND-AUTHORED ANNOTATED HTML PRD — starter skeleton.
+  See references/annotated-html-mockups.md (the technique) and references/iterating-a-live-product.md (G-rules /
+  change-points / open-questions). This is the *second* authoring mode; most PRDs use Markdown + scripts/prd_to_html.py.
+
+  How to use: fill every <…> placeholder, copy component blocks as needed, delete sections you don't need.
+  After each edit batch, run the four checks in annotated-html-mockups.md §Verification (tag balance, marker↔table
+  continuity, clip check, stale-string grep). The <style> block below is a proven design system — reuse it as-is.
+-->
+<style>
+  :root{
+    --brand:#2a66e8; --brand-weak:#eef3ff; --ink:#1f2937; --ink-soft:#475569;
+    --line:#e5e9f0; --bg:#f5f7fb; --card:#ffffff; --muted:#7a8698;
+    --blue:#2a66e8; --teal:#0f9d8f; --purple:#7c5cd6; --orange:#e2802b; --red:#d84c4c; --green:#1f9d55;
+    --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+  .layout{display:flex;max-width:1500px;margin:0 auto;gap:0}
+  /* ---- TOC ---- */
+  .toc{position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;
+    width:270px;flex:0 0 270px;padding:26px 18px 60px;border-right:1px solid var(--line);background:#fff}
+  .toc h1{font-size:15px;margin:0 0 4px;color:var(--brand)}
+  .toc .ver{font-size:12px;color:var(--muted);margin-bottom:18px}
+  .toc a{display:block;color:var(--ink-soft);text-decoration:none;padding:3px 10px;border-radius:7px;font-size:13px}
+  .toc a:hover{background:var(--brand-weak);color:var(--brand)}
+  .toc a.lv2{padding-left:22px;font-size:12.5px;color:#64748b}
+  .toc a.lv3{padding-left:34px;font-size:12px;color:#8592a6}
+  .toc a.active{background:var(--brand);color:#fff}
+  .toc .grp{margin-top:14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#9aa6b8;padding:0 10px}
+  /* ---- content ---- */
+  .content{flex:1;min-width:0;padding:34px 46px 120px}
+  h2.sec{font-size:22px;margin:46px 0 6px;padding-top:18px;border-top:2px solid var(--brand);color:#132a56}
+  h2.sec:first-of-type{border-top:none;margin-top:8px}
+  h3{font-size:17px;margin:30px 0 8px;color:#1b3a70}
+  h4.screen-title{font-size:16px;margin:0;color:#fff;background:linear-gradient(90deg,var(--brand),#3f7bf0);
+    padding:9px 16px;border-radius:10px 10px 0 0;letter-spacing:.02em}
+  h5{font-size:13.5px;margin:16px 0 6px;color:var(--ink);font-weight:700}
+  p{margin:8px 0}
+  code{background:#eef1f6;padding:1px 6px;border-radius:5px;font-size:12.5px;
+    font-family:"SF Mono",Menlo,Consolas,monospace;color:#334155}
+  a.inline{color:var(--brand)}
+  /* header meta */
+  .doc-head{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 30px;box-shadow:0 18px 40px -34px rgba(20,42,86,.4)}
+  .doc-head .title{font-size:26px;font-weight:800;color:#132a56;margin:0 0 4px}
+  .doc-head .sub{color:var(--muted);margin:0 0 18px}
+  .meta-table{width:100%;border-collapse:collapse;font-size:13px}
+  .meta-table td{border:1px solid var(--line);padding:7px 12px;vertical-align:top}
+  .meta-table td:nth-child(odd){background:#f7f9fc;color:var(--ink-soft);width:120px;font-weight:600}
+  /* generic tables */
+  table.data{width:100%;border-collapse:collapse;margin:10px 0 4px;font-size:13px;background:#fff;
+    border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  table.data th{background:#eff3fa;color:#33456b;text-align:left;padding:9px 12px;font-weight:700;
+    border-bottom:1px solid var(--line);white-space:nowrap}
+  table.data td{padding:8px 12px;border-bottom:1px solid #eef1f6;vertical-align:top}
+  table.data tr:last-child td{border-bottom:none}
+  table.data tr:nth-child(even) td{background:#fafbfe}
+  table.data td.c{text-align:center}
+  .tick{color:var(--green);font-weight:700}
+  .cross{color:var(--red);font-weight:700}
+  /* callouts */
+  .callout{border-radius:10px;padding:12px 16px;margin:14px 0;font-size:13px;border:1px solid}
+  .callout.rule{background:#f2f9f6;border-color:#bfe6d6}
+  .callout.warn{background:#fdf6ec;border-color:#f3d9a8}
+  .callout.info{background:var(--brand-weak);border-color:#c9dcfb}
+  .callout b{color:#132a56}
+  /* pills / badges */
+  .pill{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11.5px;font-weight:600;line-height:1.7}
+  .pill.brand{background:var(--brand-weak);color:var(--brand)}
+  .pill.nano{background:#eef2f7;color:#64748b}
+  .pill.micro{background:#e4f0ff;color:#2a66e8}
+  .pill.mid{background:#e7e2fb;color:#6b4fc9}
+  .pill.macro{background:#efe3fb;color:#8b4fd0}
+  .pill.mega{background:#26314a;color:#fff}
+  .pill.m{background:#e4f0ff;color:#2a66e8}
+  .pill.mir{background:#fdeede;color:#c07a2a}
+  .pill.new{background:#fde8e8;color:#d84c4c}
+  /* module card */
+  .module{border:1px solid var(--line);border-radius:10px;padding:2px 16px 14px;margin:12px 0;background:#fff}
+  .module>h5:first-child{margin-top:14px}
+  /* screen wrapper */
+  .screen{border:1px solid var(--line);border-radius:12px;margin:22px 0 30px;overflow:hidden;
+    box-shadow:0 14px 34px -30px rgba(20,42,86,.45);background:#fff}
+  .screen-body{padding:8px 20px 22px}
+  .screen-desc{color:var(--ink-soft);margin:14px 0 6px;font-size:13.5px}
+  /* four-dimension spec blocks */
+  .spec{border-left:4px solid #ccc;padding:4px 0 4px 16px;margin:18px 0}
+  .spec.field{border-color:var(--blue)}
+  .spec.cond{border-color:var(--teal)}
+  .spec.state{border-color:var(--purple)}
+  .spec.inter{border-color:var(--orange)}
+  .spec-label{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.03em;
+    padding:3px 12px;border-radius:7px;color:#fff;margin-bottom:6px}
+  .field .spec-label{background:var(--blue)}
+  .cond .spec-label{background:var(--teal)}
+  .state .spec-label{background:var(--purple)}
+  .inter .spec-label{background:var(--orange)}
+  /* interaction list */
+  ol.inter-list{list-style:none;margin:8px 0;padding:0;counter-reset:step}
+  ol.inter-list>li{position:relative;padding:8px 0 8px 44px;border-bottom:1px dashed #edf0f6}
+  ol.inter-list>li:last-child{border-bottom:none}
+  .marker{position:absolute;left:0;top:8px;width:26px;height:26px;border-radius:50%;
+    background:var(--orange);color:#fff;font-size:13px;font-weight:700;
+    display:flex;align-items:center;justify-content:center}
+  .marker.err{background:var(--red)}
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:5px;margin-right:6px;vertical-align:1px}
+  .tag.normal{background:#e8f5ee;color:var(--green)}
+  .tag.err{background:#fde8e8;color:var(--red)}
+  /* mini confirm dialog mock */
+  .dialog{display:inline-block;min-width:230px;background:#eef1f6;border:1px solid #dbe0ea;border-radius:10px;
+    padding:14px 16px;margin:8px 14px 4px 0;vertical-align:top}
+  .dialog .dt{font-weight:700;color:#1f2937;font-size:13px}
+  .dialog .db{color:#6b7688;font-size:12px;margin:4px 0 12px}
+  .dialog .da{text-align:right}
+  .dialog .btn{display:inline-block;padding:3px 14px;border-radius:6px;font-size:12px;margin-left:8px}
+  .dialog .btn.ghost{color:#6b7688}
+  .dialog .btn.primary{background:var(--brand);color:#fff}
+  .dialog .btn.danger{background:var(--red);color:#fff}
+  /* diagram container */
+  .diagram{overflow-x:auto;padding:12px 4px;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;margin:8px 0}
+  .diagram svg{display:block}
+  /* linear flow (css) */
+  .flow{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:10px 0}
+  .flow .node{background:#eef3ff;border:1.5px solid var(--brand);color:#1b3a70;border-radius:8px;
+    padding:7px 12px;font-size:12.5px;font-weight:600;white-space:nowrap}
+  .flow .node.term{background:#eef7f2;border-color:var(--green);color:#166c3c}
+  .flow .node.warnn{background:#fdf3e7;border-color:var(--orange);color:#9a5b16}
+  .flow .arw{color:#9aa6b8;font-size:18px;font-weight:700}
+  .flow .lbl{font-size:11px;color:#8592a6;padding:0 2px}
+  /* ---- annotated demo mockup ---- */
+  .anno-wrap{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:16px 0 4px;background:#fbfcff}
+  .anno-title{display:inline-block;font-size:12.5px;font-weight:800;padding:4px 14px;border-radius:8px;background:#132a56;color:#fff;margin-bottom:14px}
+  .mock{position:relative;background:#e9eef6;border:1px solid #dde4ef;border-radius:12px;padding:18px 18px 16px 20px;overflow:hidden}
+  .mock-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .mock-cols{display:flex;gap:14px;align-items:flex-start}
+  .mock-main{flex:1;min-width:0}
+  .mock-side{flex:0 0 148px;background:#fff;border:1px solid #e6ebf3;border-radius:10px;padding:8px}
+  .manchor{padding:6px 10px;font-size:12px;color:#7a8698;border-radius:7px}
+  .manchor.active{color:var(--brand);font-weight:700;background:#eef3ff;border-left:3px solid var(--brand)}
+  .mtab{display:inline-block;padding:7px 15px;border-radius:14px;font-size:12.5px;font-weight:600;background:#dfe4ee;color:#7a8698}
+  .mtab.active{background:#fff;color:var(--brand);box-shadow:0 6px 16px -10px rgba(42,102,232,.5)}
+  .mbtn{display:inline-block;padding:6px 13px;border-radius:12px;font-size:12px;border:1px solid #dfe5ee;background:#fff;color:#6f7f96;white-space:nowrap}
+  .mbtn.ai{color:#7c5cd6;border-color:#e0d8f6}
+  .mtitle{font-size:14.5px;font-weight:800;color:#1b3a70;border-left:4px solid var(--brand);padding-left:10px;margin:14px 0 10px}
+  .mcard-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:4px}
+  .mcard{flex:1;min-width:148px;background:#fff;border:1px solid #e6ebf3;border-radius:10px;padding:10px 12px}
+  .mc-label{font-size:11px;color:#8592a6}
+  .mc-val{font-size:19px;font-weight:800;color:#1b3a70;margin-top:2px}
+  .mc-val small{font-size:11.5px;color:#8592a6;font-weight:600}
+  .mc-date{font-size:10.5px;color:#6f7f96;margin-top:8px;background:#eef3ff;border-radius:6px;padding:2px 7px;display:inline-block}
+  .mchips{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0}
+  .mchip{padding:4px 12px;border-radius:14px;font-size:11.5px;background:#e4e8f1;color:#7a8698}
+  .mchip.active{background:#eef3ff;color:var(--brand);font-weight:700}
+  .mchip.new{background:#fde8e8;color:#d84c4c;font-weight:700}
+  .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+  .mmetric{background:#fff;border:1px solid #e6ebf3;border-radius:9px;padding:8px 11px}
+  .mmetric .l{font-size:10.5px;color:#8592a6}
+  .mmetric .v{font-size:15px;font-weight:700;color:#c0c7d3;margin-top:3px}
+  .mmetric.rate .v{color:#a99adf}
+  .mtbl{width:100%;border-collapse:collapse;background:#fff;border-radius:8px;overflow:hidden;font-size:11.5px}
+  .mtbl th{background:#f4f7fb;color:#54657f;text-align:left;padding:7px 8px;font-weight:700;white-space:nowrap}
+  .mtbl td{padding:7px 8px;border-top:1px solid #eef1f6;vertical-align:middle;white-space:nowrap}
+  .mava{width:22px;height:22px;border-radius:50%;background:#d3ddec;display:inline-block;vertical-align:middle;margin-right:5px}
+  .mhandle{font-size:10px;color:#8592a6}
+  .anno{position:relative}
+  .mk{position:absolute;left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;
+    background:var(--brand);color:#fff;font-size:11.5px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(42,102,232,.5);z-index:5;border:2px solid #fff}
+  td .mk{left:-8px;top:-8px;width:19px;height:19px;font-size:10.5px}
+  .nbadge{display:inline-flex;width:22px;height:22px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;font-size:12px;align-items:center;justify-content:center}
+  .minfo{display:inline-flex;width:15px;height:15px;border-radius:50%;border:1.4px solid #9fb0c6;color:#9fb0c6;font-size:10px;font-weight:700;align-items:center;justify-content:center;vertical-align:middle;margin-left:5px;font-style:normal}
+  .mseg{position:relative;display:inline-flex;gap:2px;background:#f5f7fb;border:1px solid #e5e9f2;border-radius:12px;padding:3px}
+  .mseg>span:not(.mk){padding:4px 12px;border-radius:9px;font-size:11.5px;color:#7a8698}
+  .mseg>span.active{background:#fff;color:#2d3c57;font-weight:700;box-shadow:0 6px 14px -12px rgba(15,23,42,.5)}
+  /* post-details drawer / hover card / mini chart */
+  .popcard{width:230px;background:#fff;border:1px solid #e6ebf3;border-radius:12px;padding:10px;box-shadow:0 16px 36px -26px rgba(15,23,42,.4)}
+  .drawer{width:340px;max-width:100%;background:#fff;border:1px solid #e6ebf3;border-radius:14px;box-shadow:0 22px 50px -30px rgba(15,23,42,.4)}
+  .drawer-head{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #eef1f6;font-weight:800;color:#1f2b45;border-radius:14px 14px 0 0;background:#fff}
+  .drawer-body{padding:12px 14px}
+  .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:4px}
+  .mtile{background:#f7f9fc;border:1px solid #eef1f6;border-radius:9px;padding:7px 8px}
+  .mtile .l{font-size:9px;color:#8592a6;line-height:1.3}
+  .mtile .v{font-size:13px;font-weight:800;color:#1f2b45;margin-top:3px}
+  .mtile.ocr{background:#fff6ed;border-color:#f4dcc0}
+  .mtile.ocr .l{color:#b5762a}
+  /* footer */
+  .foot{margin-top:60px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  @media(max-width:980px){
+    .toc{display:none}.content{padding:22px}
+  }
+  @media print{
+    .toc{display:none}.content{padding:0}.screen{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+  <!-- ============ TOC (sticky). Keep hrefs in sync with section ids. ============ -->
+  <nav class="toc">
+    <h1>&lt;Feature&gt; PRD</h1>
+    <div class="ver">v2.0 · YYYY-MM-DD</div>
+    <div class="grp">一 · 背景</div>
+    <a href="#s1">1. 背景与定位</a>
+    <a href="#s1" class="lv2">1.1 使用场景</a>
+    <div class="grp">二 · 全局</div>
+    <a href="#s2">2. 全局规则 (G)</a>
+    <a href="#s2" class="lv2">2.1 权限矩阵</a>
+    <div class="grp">三 · 页面</div>
+    <a href="#s3">3. 页面标注</a>
+    <a href="#s3" class="lv2">P1 · Overview</a>
+    <div class="grp">四 · 变更</div>
+    <a href="#s4">4. 本版变更点</a>
+    <a href="#s5">5. 待确认项</a>
+    <a href="#s6" class="lv2">修改记录</a>
+  </nav>
+
+  <main class="content">
+    <!-- ============ Doc header ============ -->
+    <div class="doc-head">
+      <div class="title">&lt;Feature&gt; — 产品需求文档</div>
+      <div class="sub">&lt;one-line positioning&gt;</div>
+      <table class="meta-table">
+        <tr><td>负责人</td><td>&lt;owner&gt;</td><td>版本</td><td>v2.0</td></tr>
+        <tr><td>更新日期</td><td>YYYY-MM-DD</td><td>状态</td><td>草稿 / 评审 / 定稿</td></tr>
+      </table>
+    </div>
+
+    <!-- ============ 一 背景与定位 ============ -->
+    <h2 class="sec" id="s1">一、背景与定位</h2>
+    <div class="callout info"><b>本版定位：</b>&lt;what this version is; what it changes vs v1&gt;。未列出的板块口径与实现沿用 v1.0。</div>
+
+    <h3>1.1 核心使用场景</h3>
+    <!-- one-line horizontal flow; .term = terminal node -->
+    <div class="flow">
+      <span class="node">① &lt;entry&gt;</span><span class="arw">→</span>
+      <span class="node">② &lt;step&gt;</span><span class="arw">→</span>
+      <span class="node">③ &lt;step&gt;</span><span class="arw">→</span>
+      <span class="node term">④ &lt;done&gt;</span>
+    </div>
+
+    <!-- ============ 二 全局规则 (single source of truth; cite by ID everywhere) ============ -->
+    <h2 class="sec" id="s2">二、全局规则（G · 单一事实源）</h2>
+    <div class="callout rule">下列口径为全文<b>唯一事实源</b>；各模块<b>只引用 ID</b>（如「加权 (G2)」）而不复述。改口径 = 改这里一行，全文引用自动生效。</div>
+    <table class="data">
+      <tr><th style="width:70px">ID</th><th>规则</th></tr>
+      <tr><td>G1</td><td>&lt;e.g. Engagements = Likes + Comments + Shares + Saves&gt;</td></tr>
+      <tr><td>G2</td><td>&lt;e.g. 所有比率一律加权：Σ分子 ÷ Σ分母，不取行平均&gt;</td></tr>
+      <tr><td>G3</td><td>&lt;e.g. 除零显示 "—"，不显示 0 / NaN&gt;</td></tr>
+      <tr><td>G4</td><td>&lt;e.g. 全报表时间固定 UTC (GMT+0)&gt;</td></tr>
+    </table>
+
+    <h3 id="s2p1">2.1 角色权限矩阵</h3>
+    <table class="data">
+      <tr><th>功能 / 数据</th><th class="c">登录用户</th><th class="c">客户（公开页）</th><th class="c">超管</th></tr>
+      <tr><td>查看 Overview</td><td class="c tick">✔</td><td class="c tick">✔</td><td class="c tick">✔</td></tr>
+      <tr><td>查看金额字段</td><td class="c tick">✔</td><td class="c cross">✘ 脱敏</td><td class="c tick">✔</td></tr>
+      <tr><td>导出 Excel</td><td class="c tick">✔</td><td class="c tick">✔ 前端下载</td><td class="c tick">✔</td></tr>
+    </table>
+
+    <!-- ============ 三 页面标注 (the annotated-mockup triad) ============ -->
+    <h2 class="sec" id="s3">三、页面标注</h2>
+
+    <div class="anno-wrap">
+      <span class="anno-title">🖼 功能标注 · P1 Overview <code>#overview</code></span>
+      <div class="mock">
+        <!-- Recreate the UI faithfully. Pin a marker by wrapping the element in .anno + .mk.
+             Keep markers off the mock's top/left edge (padding absorbs the -11px overhang). -->
+        <div class="mock-row">
+          <span class="anno"><span class="mk">1</span><span class="mtab active">Overview</span></span>
+          <span class="mtab">Influencer</span>
+          <span style="flex:1"></span>
+          <span class="anno"><span class="mk">2</span><span class="mbtn">Share</span></span>
+          <span class="mbtn ai">AI Summary</span>
+        </div>
+        <div class="mtitle">Performance</div>
+        <span class="anno mchips"><span class="mk">3</span>
+          <span class="mchip active">All</span><span class="mchip">Instagram</span><span class="mchip">TikTok</span><span class="mchip">YouTube</span>
+        </span>
+        <div class="anno" style="margin-top:8px"><span class="mk">4</span>
+          <div class="mgrid">
+            <div class="mmetric"><div class="l">Total Views</div><div class="v">N/A</div></div>
+            <div class="mmetric"><div class="l">Total Likes</div><div class="v">N/A</div></div>
+            <div class="mmetric rate"><div class="l">Engagement Rate %</div><div class="v">N/A</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanation table: one row per marker, numbers in lockstep with the mockup -->
+    <table class="data">
+      <tr><th style="width:52px">标号</th><th style="width:190px">含义（元素）</th><th style="width:33%">交互</th><th>逻辑 / 数据来源</th></tr>
+      <tr><td class="c"><span class="nbadge">1</span></td><td>子 Tab 切换器（Overview / Influencer）</td><td>点击切换视图，当前项高亮</td><td>默认 Overview；前端路由，无数据依赖</td></tr>
+      <tr><td class="c"><span class="nbadge">2</span></td><td>Share 按钮</td><td>点击 → 打开分享弹窗</td><td>无快照时禁用；后端 <code>crypto/rand</code> token</td></tr>
+      <tr><td class="c"><span class="nbadge">3</span></td><td>平台筛选 chip（单选）<span class="pill new">本版改造</span></td><td>点某 chip → 指标卡按该平台重取</td><td>All = 全平台汇总；平台归一 <code>LOWER(TRIM)</code></td></tr>
+      <tr><td class="c"><span class="nbadge">4</span></td><td>Performance 指标卡组</td><td>随 chip 刷新</td><td>求和 (G1)；Demo 的 <b>N/A 是占位</b>，正式版空值 "—" (G3)</td></tr>
+    </table>
+
+    <!-- Four-dimension function spec for the same screen (mirror of the Markdown four dimensions) -->
+    <div class="screen">
+      <h4 class="screen-title">P1 · Overview — 功能与交互说明</h4>
+      <div class="screen-body">
+        <div class="spec field">
+          <span class="spec-label">① 字段 / 数据来源</span>
+          <table class="data">
+            <tr><th style="width:180px">字段</th><th>说明 / 计算</th><th style="width:170px">数据来源</th></tr>
+            <tr><td>Total Views</td><td>对应指标求和 (G1)；按所选平台取值</td><td>快照聚合</td></tr>
+            <tr><td>Engagement Rate %</td><td>ΣEng ÷ ΣViews × 100（加权 G2）；除零 → "—" (G3)</td><td>计算</td></tr>
+          </table>
+        </div>
+        <div class="spec cond">
+          <span class="spec-label">② 前置 · 排序 · 刷新</span>
+          <p style="margin:6px 0">前置：已登录且该 campaign 有 ≥1 快照。排序：—。刷新：读凌晨物化快照，页面无实时重采（数据固化）。</p>
+        </div>
+        <div class="spec state">
+          <span class="spec-label">③ 状态流转</span>
+          <table class="data">
+            <tr><th>来源态</th><th>触发 / 条件</th><th>目标态</th></tr>
+            <tr><td>无快照</td><td>凌晨调度物化成功</td><td>有数据（可分享 / 可导出）</td></tr>
+          </table>
+        </div>
+        <div class="spec inter">
+          <span class="spec-label">④ 交互（正常 + 异常）</span>
+          <ol class="inter-list">
+            <li><span class="marker">1</span><span class="tag normal">正常</span>点击平台 chip → 指标卡按该平台重取。</li>
+            <li><span class="marker err">2</span><span class="tag err">异常</span>该平台无数据 → 卡片显示 "—" (G3)，不报错、不空屏。</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ 四 变更点 (spec the delta; Impact column re-scopes as things churn) ============ -->
+    <h2 class="sec" id="s4">四、本版变更点（相对 v1.0）</h2>
+    <div class="callout info">仅列<b>需要改动</b>的项；未列出的沿用 v1.0。</div>
+    <table class="data">
+      <tr><th>#</th><th>变更点</th><th>v1.0 现状</th><th>v2.0（本版）</th><th>影响面</th></tr>
+      <tr><td>C1</td><td>&lt;change&gt;</td><td>&lt;v1 state&gt;</td><td>&lt;v2 state&gt;</td><td><b>纯前端</b> / 前端 + 后端&lt;…&gt;</td></tr>
+      <tr><td>C2</td><td>&lt;change&gt;</td><td>无</td><td>&lt;new capability&gt;</td><td>&lt;fe/be impact&gt;</td></tr>
+    </table>
+
+    <!-- ============ 五 待确认 (every row carries a default; resolve in place) ============ -->
+    <h2 class="sec" id="s5">五、待确认项（均给默认值，不阻塞开工）</h2>
+    <table class="data">
+      <tr><th style="width:40px">#</th><th>问题</th><th>默认取值（未另行拍板即按此实现）</th></tr>
+      <tr><td>1</td><td>&lt;open question&gt;</td><td>&lt;sensible default&gt;</td></tr>
+      <tr><td>2</td><td>&lt;resolved question&gt; <span class="pill new">已明确</span></td><td><b>&lt;confirmed answer&gt;</b>（原默认已被拍板替换，保留决策痕迹）</td></tr>
+    </table>
+
+    <!-- ============ 修改记录 (document edits over time; distinct from 变更点) ============ -->
+    <h2 class="sec" id="s6">六、修改记录</h2>
+    <table class="data">
+      <tr><th>版本</th><th>日期</th><th>说明</th></tr>
+      <tr><td>v1.0</td><td>YYYY-MM-DD</td><td>首版定稿并落地</td></tr>
+      <tr><td>v2.0</td><td>YYYY-MM-DD</td><td>依据 &lt;input&gt; 改版：&lt;summary of change points&gt;</td></tr>
+    </table>
+
+    <div class="foot">&lt;Feature&gt; PRD · 本文件为自包含 HTML，可直接 file:// 打开、分享、打印为 PDF。</div>
+  </main>
+</div>
+
+<script>
+  // Minimal scroll-spy: highlight the TOC link whose section is in view. Self-contained, no deps.
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = links.map(function(a){ var el = document.querySelector(a.getAttribute('href')); return {a:a, el:el}; })
+                   .filter(function(x){ return x.el; });
+    function onScroll(){
+      var y = window.scrollY + 120, cur = null;
+      map.forEach(function(x){ if(x.el.offsetTop <= y) cur = x.a; });
+      links.forEach(function(a){ a.classList.remove('active'); });
+      if(cur) cur.classList.add('active');
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+  })();
+</script>
+</body>
+</html>

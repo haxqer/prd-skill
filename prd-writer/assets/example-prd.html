@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Car-Wash App — Order Center (Order List + Store Detail)</title>
+<style>
+:root {
+  --accent: #2563eb;
+  --accent-soft: #eff4ff;
+  --fg: #1f2933;
+  --fg-muted: #64748b;
+  --bg: #ffffff;
+  --bg-alt: #f8fafc;
+  --border: #e2e8f0;
+  --code-bg: #f5f7fa;
+  --sidebar-w: 264px;
+  --measure: 860px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--fg);
+  background: var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+.layout { display: flex; align-items: flex-start; max-width: 1240px; margin: 0 auto; }
+
+/* Sidebar / TOC */
+.sidebar {
+  width: var(--sidebar-w);
+  flex: 0 0 var(--sidebar-w);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 28px 16px 40px 24px;
+  border-right: 1px solid var(--border);
+}
+.toc-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--fg-muted);
+  margin-bottom: 10px;
+}
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc li { margin: 0; }
+.toc a {
+  display: block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: var(--fg-muted);
+  text-decoration: none;
+  font-size: 13.5px;
+  line-height: 1.4;
+  border-left: 2px solid transparent;
+}
+.toc a:hover { color: var(--fg); background: var(--bg-alt); }
+.toc .toc-h3 a { padding-left: 22px; font-size: 13px; }
+.toc a.active {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+/* Content */
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: var(--measure);
+  padding: 40px 40px 96px;
+  margin: 0 auto;
+}
+
+/* Document header banner */
+.doc-header {
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 2px solid var(--border);
+}
+.doc-header h1 {
+  margin: 0 0 12px;
+  font-size: 30px;
+  line-height: 1.25;
+  letter-spacing: -.01em;
+}
+.meta-bar { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--fg);
+}
+.chip .chip-k { color: var(--fg-muted); font-weight: 600; }
+
+/* Headings */
+.content h2, .content h3, .content h4, .content h5, .content h6 {
+  scroll-margin-top: 20px;
+  line-height: 1.3;
+  position: relative;
+}
+.content h2 {
+  margin: 40px 0 14px;
+  padding-bottom: 6px;
+  font-size: 23px;
+  border-bottom: 1px solid var(--border);
+}
+.content h3 { margin: 30px 0 10px; font-size: 19px; }
+.content h4 { margin: 24px 0 8px; font-size: 16.5px; }
+.content h1 { font-size: 27px; margin: 32px 0 14px; }
+.anchor {
+  margin-left: 8px;
+  color: var(--border);
+  text-decoration: none;
+  font-weight: 400;
+  opacity: 0;
+  transition: opacity .12s ease;
+}
+h1:hover .anchor, h2:hover .anchor, h3:hover .anchor,
+h4:hover .anchor, h5:hover .anchor, h6:hover .anchor { opacity: 1; }
+.anchor:hover { color: var(--accent); }
+
+.content p { margin: 12px 0; }
+.content a { color: var(--accent); text-decoration: none; }
+.content a:hover { text-decoration: underline; }
+.content ul, .content ol { padding-left: 26px; margin: 12px 0; }
+.content li { margin: 4px 0; }
+ul.task-list { list-style: none; padding-left: 4px; }
+ul.task-list li { display: flex; align-items: flex-start; gap: 8px; }
+ul.task-list input { margin-top: 6px; }
+hr { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+
+/* Blockquote callouts */
+blockquote {
+  margin: 16px 0;
+  padding: 12px 18px;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+  border-radius: 0 8px 8px 0;
+  color: var(--fg);
+}
+blockquote p { margin: 6px 0; }
+
+/* Code */
+code {
+  font-family: "SF Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .9em;
+  background: var(--code-bg);
+  padding: .15em .4em;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  margin: 16px 0;
+}
+pre code { background: none; border: none; padding: 0; font-size: 13.5px; line-height: 1.55; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin: 18px 0; border: 1px solid var(--border); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg-alt);
+  text-align: left;
+  font-weight: 700;
+  color: var(--fg);
+  border-bottom: 2px solid var(--border);
+  z-index: 1;
+}
+th, td { padding: 9px 14px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); vertical-align: top; }
+th:last-child, td:last-child { border-right: none; }
+tbody tr:nth-child(even) { background: var(--bg-alt); }
+tbody tr:hover { background: var(--accent-soft); }
+
+/* Status badges */
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.badge-ok     { background: #e7f6ec; color: #1a7f37; }
+.badge-warn   { background: #fef4e5; color: #b7791f; }
+.badge-info   { background: #e7f0fd; color: #1d4ed8; }
+.badge-danger { background: #fdecec; color: #c0392b; }
+.badge-muted  { background: #eef1f5; color: #64748b; }
+
+/* Mermaid */
+pre.mermaid {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  text-align: center;
+  padding: 18px;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --accent: #60a5fa;
+    --accent-soft: #17233a;
+    --fg: #e5e9f0;
+    --fg-muted: #97a3b6;
+    --bg: #0f141b;
+    --bg-alt: #161d27;
+    --border: #2a3441;
+    --code-bg: #161d27;
+  }
+  .badge-ok     { background: #14331f; color: #6ee7a0; }
+  .badge-warn   { background: #33290f; color: #f4c66b; }
+  .badge-info   { background: #16263f; color: #7fb0f7; }
+  .badge-danger { background: #3a1a1a; color: #f19a92; }
+  .badge-muted  { background: #232b36; color: #97a3b6; }
+  pre.mermaid { background: #f8fafc; }
+}
+
+/* Responsive: hide sidebar on narrow screens */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .content { padding: 28px 20px 72px; max-width: 100%; }
+}
+
+/* Print: clean single-column PDF */
+@media print {
+  .sidebar { display: none !important; }
+  .content { max-width: 100%; padding: 0; }
+  .anchor { display: none; }
+  a { color: inherit; text-decoration: none; }
+  body { font-size: 12pt; }
+  pre, blockquote, .table-wrap, table, tr, img { page-break-inside: avoid; }
+  thead th { position: static; }
+  h2, h3, h4 { page-break-after: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<aside class="sidebar"><nav class="toc" aria-label="Table of contents"><div class="toc-title">On this page</div><ul><li class="toc-h2"><a href="#1-product-feature-intro">1. Product &amp; feature intro</a></li><li class="toc-h2"><a href="#2-version-v13">2. Version v1.3</a></li><li class="toc-h3"><a href="#21-schedule">2.1 Schedule</a></li><li class="toc-h3"><a href="#22-product-design">2.2 Product design</a></li><li class="toc-h2"><a href="#3-function-interaction-spec">3. Function &amp; interaction spec</a></li><li class="toc-h3"><a href="#p-01-order-list-orders-tab">P-01 — Order list ("Orders" tab) ⭐</a></li><li class="toc-h3"><a href="#p-02-store-detail">P-02 — Store detail</a></li><li class="toc-h2"><a href="#4-non-functional-requirements">4. Non-functional requirements</a></li><li class="toc-h3"><a href="#41-event-tracking-analytics">4.1 Event-tracking (analytics)</a></li><li class="toc-h3"><a href="#42-performance">4.2 Performance</a></li><li class="toc-h3"><a href="#43-compatibility">4.3 Compatibility</a></li><li class="toc-h2"><a href="#5-change-log">5. Change log</a></li></ul></nav></aside>
+<main class="content">
+<header class="doc-header"><h1>Car-Wash App — Order Center (Order List + Store Detail)</h1><div class="meta-bar"><span class="chip"><span class="chip-k">Owner</span><span>Jordan Wei</span></span><span class="chip"><span class="chip-k">Version</span><span>v1.3</span></span><span class="chip"><span class="chip-k">Last updated</span><span>2026-07-11</span></span></div></header>
+<hr>
+<h2 id="1-product-feature-intro">1. Product &amp; feature intro<a class="anchor" href="#1-product-feature-intro" aria-label="Link to this section">#</a></h2>
+<ul><li><strong>Who am I</strong>: a self-service car-wash booking app. Users find a nearby car-wash spot, book a wash, pay, then start the wash machine from their phone.</li><li><strong>What am I good for</strong>: this iteration reworks the <strong>Order Center</strong> — the "Orders" tab where a user tracks every wash they booked, cancels one they no longer need, jumps back into an active wash, or re-books a spot they liked.</li><li><strong>Why this iteration</strong>: the old order list showed a flat, time-sorted list with no status grouping, so users lost track of the wash they were about to start. v1.3 groups by order status, adds the cancel/reorder/delete actions inline, and wires the list straight into the start-machine flow.</li><li><strong>Target users</strong>: <strong>Customer</strong> (car owner) is the primary role. <strong>Shop staff</strong> and <strong>Ops</strong> touch the same order data through the back office (permissions are specced below) but are out of scope for the app screens here.</li><li><strong>Core use scenario</strong>: a user opens the <strong>Orders</strong> tab, sees their bookings grouped as <em>Unused / In use / Used</em>, taps <strong>Go wash</strong> on an unused order to start machine 009, or taps <strong>Cancel order</strong> on a booking they no longer need.</li></ul>
+<blockquote><p>Scope note: this is a <strong>version iteration</strong>, so per the skill's tailoring guidance the <em>Industry overview</em> section is dropped and the <em>Product intro</em> is trimmed to what a new engineer needs to start building.</p></blockquote>
+<hr>
+<h2 id="2-version-v13">2. Version v1.3<a class="anchor" href="#2-version-v13" aria-label="Link to this section">#</a></h2>
+<h3 id="21-schedule">2.1 Schedule<a class="anchor" href="#21-schedule" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>Module</th><th>Owner</th><th>Est. start</th><th>Est. finish</th><th>Status</th></tr></thead><tbody><tr><td>P-01 Order list (grouping + inline actions)</td><td>Client — Amy Lin</td><td>2026-07-14</td><td>2026-07-25</td><td><span class="badge badge-warn">In progress</span></td></tr><tr><td>P-02 Store detail (reorder entry)</td><td>Client — Amy Lin</td><td>2026-07-21</td><td>2026-07-30</td><td><span class="badge badge-muted">Not started</span></td></tr><tr><td>Order-state service (cancel / delete API)</td><td>Backend — Ravi Menon</td><td>2026-07-14</td><td>2026-07-24</td><td><span class="badge badge-warn">In progress</span></td></tr><tr><td>Start-machine bridge (P-03 hand-off)</td><td>Backend — Ravi Menon</td><td>2026-07-25</td><td>2026-08-01</td><td><span class="badge badge-muted">Not started</span></td></tr><tr><td>Analytics events (order_* funnel)</td><td>Data — Sofia Park</td><td>2026-07-28</td><td>2026-08-04</td><td><span class="badge badge-muted">Not started</span></td></tr><tr><td>QA regression + edge-path pass</td><td>QA — Deng Hua</td><td>2026-08-04</td><td>2026-08-11</td><td><span class="badge badge-muted">Not started</span></td></tr></tbody></table></div>
+<h3 id="22-product-design">2.2 Product design<a class="anchor" href="#22-product-design" aria-label="Link to this section">#</a></h3>
+<h4 id="221-entity-relationship-e-r-diagram">2.2.1 Entity-Relationship (E-R) diagram<a class="anchor" href="#221-entity-relationship-e-r-diagram" aria-label="Link to this section">#</a></h4>
+<p>The Order Center persists four entities. A <strong>User</strong> places many <strong>Orders</strong>; each Order targets exactly one <strong>Shop</strong> (car-wash spot) and, once the wash starts, is bound to one <strong>Machine</strong> at that shop.</p>
+<pre class="mermaid">erDiagram
+    USER ||--o{ ORDER : &quot;places&quot;
+    SHOP ||--o{ ORDER : &quot;fulfills&quot;
+    SHOP ||--|{ MACHINE : &quot;hosts&quot;
+    MACHINE ||--o{ ORDER : &quot;runs&quot;
+    USER {
+        bigint   id PK
+        string   nickname
+        string   phone
+    }
+    SHOP {
+        bigint   id PK
+        string   name        &quot;2-12 chars&quot;
+        string   address     &quot;6-20 chars&quot;
+        string   cover_image &quot;first backend image&quot;
+    }
+    MACHINE {
+        bigint   id PK
+        bigint   shop_id FK
+        string   code        &quot;e.g. 009&quot;
+        tinyint  online      &quot;0 offline 1 online&quot;
+    }
+    ORDER {
+        bigint   id PK
+        bigint   user_id FK
+        bigint   shop_id FK
+        bigint   machine_id FK &quot;null until wash starts&quot;
+        tinyint  status      &quot;0 Unused 1 In use 2 Used 3 Canceled&quot;
+        tinyint  wash_type   &quot;0 Fine wash 1 Quick wash&quot;
+        int      price       &quot;yuan, integer, e.g. 15&quot;
+        datetime created_at
+    }</pre>
+<blockquote><p>Enum meaning is spelled out in the diagram so backend and QA never have to guess: <code>status</code> 0/1/2/3 = Unused / In use / Used / Canceled; <code>wash_type</code> 0/1 = Fine wash / Quick wash.</p></blockquote>
+<h4 id="222-role-permission-matrix">2.2.2 Role-permission matrix<a class="anchor" href="#222-role-permission-matrix" aria-label="Link to this section">#</a></h4>
+<p>Three roles touch order data. The app screens in this PRD are the <strong>Customer</strong> column; Shop staff and Ops act through the back office and are listed so the backend builds one consistent permission layer.</p>
+<div class="table-wrap"><table><thead><tr><th>Function / Data</th><th style="text-align:center">Customer</th><th style="text-align:center">Shop staff</th><th style="text-align:center">Ops</th></tr></thead><tbody><tr><td>View order list</td><td style="text-align:center">Own orders only</td><td style="text-align:center">Own shop's orders</td><td style="text-align:center">All orders</td></tr><tr><td>View order detail</td><td style="text-align:center">Own only</td><td style="text-align:center">Own shop</td><td style="text-align:center"><span class="badge badge-ok">Yes</span></td></tr><tr><td>Cancel order</td><td style="text-align:center">Own, only while <strong>Unused</strong></td><td style="text-align:center"><span class="badge badge-muted">No</span></td><td style="text-align:center">Yes (any state, with reason)</td></tr><tr><td>Delete order record</td><td style="text-align:center">Own, only <strong>Used / Canceled</strong></td><td style="text-align:center"><span class="badge badge-muted">No</span></td><td style="text-align:center">No (soft-hide only)</td></tr><tr><td>Start wash machine</td><td style="text-align:center">Own, only <strong>Unused</strong></td><td style="text-align:center">Assist at kiosk</td><td style="text-align:center"><span class="badge badge-muted">No</span></td></tr><tr><td>Reorder (re-book a spot)</td><td style="text-align:center"><span class="badge badge-ok">Yes</span></td><td style="text-align:center"><span class="badge badge-muted">No</span></td><td style="text-align:center"><span class="badge badge-muted">No</span></td></tr><tr><td>Issue refund on cancel</td><td style="text-align:center">Auto (system)</td><td style="text-align:center"><span class="badge badge-muted">No</span></td><td style="text-align:center">Yes (manual override)</td></tr></tbody></table></div>
+<h4 id="223-flowcharts-decomposed-layer-by-layer">2.2.3 Flowcharts (decomposed layer by layer)<a class="anchor" href="#223-flowcharts-decomposed-layer-by-layer" aria-label="Link to this section">#</a></h4>
+<p><strong>Business flow</strong> (the whole booking-to-wash loop):</p>
+<pre class="mermaid">flowchart LR
+    Book[Customer books a spot] --&gt; Pay[Pay -&gt; order Unused]
+    Pay --&gt; Start[Start machine -&gt; In use]
+    Start --&gt; Finish[Wash ends -&gt; Used]
+    Book -. cancel while Unused .-&gt; Cancel[Canceled + refund]</pre>
+<p><strong>Task flow — "Cancel order"</strong> (every branch, including the abort path):</p>
+<pre class="mermaid">flowchart TD
+    A[Tap Cancel order on P-01] --&gt; B{Order still Unused?}
+    B --&gt;|No, already In use/Used/Canceled| C[Toast &#x27;Order status updated&#x27; + refresh list]
+    B --&gt;|Yes| D[Show confirm dialog P-01-D1]
+    D --&gt; E{User choice}
+    E --&gt;|Don&#x27;t cancel yet| F[Close dialog, stay on P-01]
+    E --&gt;|Confirm| G[Call cancel API]
+    G --&gt; H{API result}
+    H --&gt;|Success| I[status -&gt; Canceled, refund issued, refresh card]
+    H --&gt;|Fail / timeout| J[Toast &#x27;Cancel failed, try again&#x27;, keep Unused]</pre>
+<p><strong>Page flow</strong> (how the Order Center screens transition):</p>
+<pre class="mermaid">flowchart LR
+    P01[P-01 Order list] --&gt;|tap card / spot name / Reorder| P02[P-02 Store detail]
+    P01 --&gt;|Go wash / View detail| P03[P-03 Start machine]
+    P01 --&gt;|Cancel order| D1[P-01-D1 Cancel confirm]
+    P01 --&gt;|Delete icon| D2[P-01-D2 Delete confirm]
+    P02 --&gt;|Book -&gt; pay| P01</pre>
+<h4 id="224-global-spec-shared-controls-states-defined-once-referenced-everywhere">2.2.4 Global spec (shared controls &amp; states — defined once, referenced everywhere)<a class="anchor" href="#224-global-spec-shared-controls-states-defined-once-referenced-everywhere" aria-label="Link to this section">#</a></h4>
+<p>Defined here once; the per-page specs below reference these by name instead of re-describing them.</p>
+<div class="table-wrap"><table><thead><tr><th>Scenario</th><th>Behavior</th><th>Copy / action</th></tr></thead><tbody><tr><td>Empty data</td><td>Centered illustration + hint + primary button</td><td>"No orders yet — find a spot to wash" + [Find a spot] → P-02 discovery</td></tr><tr><td>Loading (first load)</td><td>Full-page skeleton of 3 card placeholders</td><td>—</td></tr><tr><td>Loading more (pagination)</td><td>Bottom spinner row</td><td>"Loading…"</td></tr><tr><td>Load failed / server error</td><td>Centered illustration + retry, <strong>previous data kept if any</strong></td><td>"Load failed, tap to retry" + [Retry]</td></tr><tr><td>Offline</td><td>Top sticky banner (non-blocking)</td><td>"No network connection"</td></tr><tr><td>No permission / not logged in</td><td>Redirect to login; on return, restore intended page</td><td>—</td></tr><tr><td>Request in flight (any action button)</td><td>Button shows spinner + disabled</td><td>Prevents double submit</td></tr><tr><td>Destructive confirm</td><td>Center modal, 2 buttons, primary = safe choice</td><td>See P-01-D1 / P-01-D2</td></tr><tr><td>Toast</td><td>Bottom toast, auto-dismiss 2s</td><td>Short single line</td></tr></tbody></table></div>
+<hr>
+<h2 id="3-function-interaction-spec">3. Function &amp; interaction spec<a class="anchor" href="#3-function-interaction-spec" aria-label="Link to this section">#</a></h2>
+<blockquote><p>Every page and dialog carries a <strong>number</strong> (P-01, P-02, P-01-D1 …) so the doc, the wireframes, and the visual designs all line up. This is the heart of the PRD — specced, not summarized.</p></blockquote>
+<h3 id="p-01-order-list-orders-tab">P-01 — Order list ("Orders" tab) ⭐<a class="anchor" href="#p-01-order-list-orders-tab" aria-label="Link to this section">#</a></h3>
+<p><strong>Wireframe context.</strong> Page titled <strong>"Orders"</strong>. Each order is a card showing the <strong>cover image</strong>, <strong>spot name</strong> (e.g. "Hengjiang Building"), <strong>detailed address</strong>, <strong>wash type</strong>, <strong>price</strong> (e.g. ¥25 / ¥15), and a <strong>status label</strong> (Unused / In use / Used). Cards carry inline action buttons — <strong>Cancel order</strong>, <strong>Go wash</strong>, <strong>View detail</strong>, <strong>Reorder</strong> — depending on status, plus a <strong>delete (trash) icon</strong> on finished orders. A bottom tab bar shows <strong>Home / Orders / Mine</strong>. The numbered call-outs (1)–(6) below match the annotations drawn on the wireframe.</p>
+<h4 id="1-field-spec">(1) Field spec<a class="anchor" href="#1-field-spec" aria-label="Link to this section">#</a></h4>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Description</th><th>Data source</th></tr></thead><tbody><tr><td>Order date</td><td>Format: <code>2016-03-15 19:00</code></td><td>System-determined</td></tr><tr><td>Order status</td><td>Unused / In use / Used / Canceled</td><td>System-determined</td></tr><tr><td>Car-wash spot name</td><td>2–12 characters</td><td>Backend</td></tr><tr><td>Detailed address</td><td>6–20 characters; single line only; if it overflows one line, the last character shows as "…"</td><td>Backend</td></tr><tr><td>Image</td><td>The first image uploaded in the backend</td><td>Backend</td></tr><tr><td>Wash type</td><td>Fine wash / Quick wash</td><td>System-determined</td></tr><tr><td>Price</td><td>e.g. ¥15, integer</td><td>Backend</td></tr></tbody></table></div>
+<h4 id="2-condition-spec">(2) Condition spec<a class="anchor" href="#2-condition-spec" aria-label="Link to this section">#</a></h4>
+<div class="table-wrap"><table><thead><tr><th>Precondition</th><th>Sort rule</th><th>Load rule</th></tr></thead><tbody><tr><td>User is logged in</td><td>1. Sort by order status first (Unused, In use, Used); 2. Then reverse chronological order (newest first) within each status group</td><td>1. Auto-load on entering the page; 2. Load 10 historical orders per batch, pull up to load more; 3. Silent refresh of a single card when returning from P-02 / P-03; 4. Pull-to-refresh reloads from the first batch</td></tr></tbody></table></div>
+<blockquote><p>Canceled orders are not pinned into the status grouping — they fall to the bottom in reverse-chronological order and carry the delete icon.</p></blockquote>
+<h4 id="3-order-state-transitions">(3) Order state transitions<a class="anchor" href="#3-order-state-transitions" aria-label="Link to this section">#</a></h4>
+<p>State table:</p>
+<div class="table-wrap"><table><thead><tr><th>From state</th><th>Trigger / condition</th><th>To state</th></tr></thead><tbody><tr><td>(none)</td><td>User places order successfully</td><td><span class="badge badge-info">Unused</span></td></tr><tr><td><span class="badge badge-info">Unused</span></td><td>Wash machine starts successfully</td><td><span class="badge badge-warn">In use</span></td></tr><tr><td><span class="badge badge-warn">In use</span></td><td>Wash ends</td><td><span class="badge badge-ok">Used</span></td></tr><tr><td><span class="badge badge-info">Unused</span></td><td>User cancels order (confirmed in P-01-D1)</td><td><span class="badge badge-danger">Canceled</span></td></tr></tbody></table></div>
+<p>State diagram:</p>
+<pre class="mermaid">stateDiagram-v2
+    [*] --&gt; Unused: place order succeeds
+    Unused --&gt; InUse: machine starts
+    InUse --&gt; Used: wash ends
+    Unused --&gt; Canceled: user cancels (confirm)
+    Used --&gt; [*]: delete record
+    Canceled --&gt; [*]: delete record</pre>
+<blockquote><p>Only <strong>Unused</strong> can move to <strong>Canceled</strong> — once a wash has started (In use) or finished (Used), cancel is no longer offered; the card exposes <em>View detail</em> / <em>Reorder</em> instead.</p></blockquote>
+<h4 id="4-interactions-numbered-to-the-wireframe-annotations-normal-abnormal">(4) Interactions — numbered to the wireframe annotations (normal + abnormal)<a class="anchor" href="#4-interactions-numbered-to-the-wireframe-annotations-normal-abnormal" aria-label="Link to this section">#</a></h4>
+<p>Normal-path interactions, keyed to the call-outs drawn on the page:</p>
+<ol><li><strong>(1) Tap the order card / spot name</strong> → enter the store detail page <strong>P-02</strong> (store 008).</li><li><strong>(2) Tap "Cancel order"</strong> → pop confirm dialog <strong>P-01-D1</strong> "Are you sure you want to cancel this order?"; tap <strong>"Confirm"</strong> → cancel the order (status → Canceled, refund issued), refresh the card in place; tap <strong>"Don't cancel yet"</strong> → close the dialog and return to this page.</li><li><strong>(3) Tap "Go wash"</strong> → enter the start-machine page <strong>P-03</strong> (machine 009).</li><li><strong>(4) Tap "View detail"</strong> → enter the start-machine page <strong>P-03</strong> (machine 009).</li><li><strong>(5) Tap the delete (trash) icon</strong> → pop confirm dialog <strong>P-01-D2</strong> "Are you sure you want to delete this order?"; tap <strong>"Confirm"</strong> → delete the order (removed from the list); tap <strong>"Cancel"</strong> → close the dialog and return to this page.</li><li><strong>(6) Tap "Reorder"</strong> → enter the store detail page <strong>P-02</strong> (store 008).</li></ol>
+<p>Which actions appear on a card, by status:</p>
+<div class="table-wrap"><table><thead><tr><th>Status</th><th>Buttons shown</th><th style="text-align:center">Delete icon?</th></tr></thead><tbody><tr><td><span class="badge badge-info">Unused</span></td><td>Cancel order · Go wash</td><td style="text-align:center"><span class="badge badge-muted">No</span></td></tr><tr><td><span class="badge badge-warn">In use</span></td><td>View detail</td><td style="text-align:center"><span class="badge badge-muted">No</span></td></tr><tr><td><span class="badge badge-ok">Used</span></td><td>Reorder · View detail</td><td style="text-align:center"><span class="badge badge-ok">Yes</span></td></tr><tr><td><span class="badge badge-danger">Canceled</span></td><td>Reorder</td><td style="text-align:center"><span class="badge badge-ok">Yes</span></td></tr></tbody></table></div>
+<p><strong>Abnormal / edge paths</strong> — the part that stops the back-and-forth. Structured as element × action:</p>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>Element / trigger</th><th>Action</th><th>Normal result</th><th>Abnormal / edge handling</th></tr></thead><tbody><tr><td>A1</td><td>Page open, no orders</td><td>Enter Orders tab</td><td>List renders</td><td>List empty → show [Global spec · Empty data] with [Find a spot]; do not show an error</td></tr><tr><td>A2</td><td>First load</td><td>Fetch order list</td><td>10 cards render</td><td>Fetch fails/timeout → [Global spec · Load failed]; on retry keep any previously shown data, don't blank the screen</td></tr><tr><td>A3</td><td>Offline</td><td>Enter or refresh</td><td>—</td><td>Show [Global spec · Offline] banner; keep cached list read-only; action buttons stay tappable but a tap surfaces "No network connection" toast and makes no state change</td></tr><tr><td>A4</td><td>(2) Cancel order</td><td>Tap on an order that another device already moved to In use</td><td>—</td><td>Skip the dialog; toast "Order status updated" and silent-refresh that card to In use (order already changed elsewhere)</td></tr><tr><td>A5</td><td>(2) Cancel order</td><td>Confirm in P-01-D1, API fails</td><td>—</td><td>Toast "Cancel failed, please try again"; card stays Unused; no refund side-effect</td></tr><tr><td>A6</td><td>(2) Cancel order</td><td>Double-tap "Cancel order" / double-tap "Confirm"</td><td>—</td><td>Button enters loading+disabled on first tap ([Global spec · Request in flight]); second tap ignored; cancel API is idempotent on the order id</td></tr><tr><td>A7</td><td>(3)(4) Go wash / View detail</td><td>Tap when machine 009 is offline / occupied</td><td>View detail opens P-03 (read-only)</td><td><strong>Go wash</strong> pre-checks the machine: server returns <code>MACHINE_OFFLINE</code> / <code>MACHINE_BUSY</code> → show dialog "This machine is currently unavailable. Try again shortly." with [Refresh]; do <strong>not</strong> navigate to P-03. <strong>View detail</strong> still opens P-03 regardless (no live start needed)</td></tr><tr><td>A8</td><td>(5) Delete</td><td>Confirm delete, API fails</td><td>—</td><td>Toast "Delete failed, please try again"; card remains in the list</td></tr><tr><td>A9</td><td>(6) Reorder</td><td>Tap when shop 008 is closed / delisted</td><td>—</td><td>Toast "This spot is no longer available"; stay on P-01; do not navigate to a dead P-02</td></tr><tr><td>A10</td><td>Session</td><td>Any action after the login token expired</td><td>—</td><td>Redirect to login ([Global spec · No permission]); after re-login, return to P-01 and replay the tapped action's target screen (not the mutation)</td></tr><tr><td>A11</td><td>Pagination</td><td>Repeated pull-up while a "load more" request is in flight</td><td>—</td><td>Ignore new load-more requests until the current one resolves; show the bottom spinner only once</td></tr><tr><td>A12</td><td>Pull-to-refresh</td><td>Pull down repeatedly</td><td>Reload batch 1</td><td>Ignore new refresh while one is in flight; on success reset to the first 10 and re-apply the sort rule</td></tr><tr><td>A13</td><td>Boundary</td><td>Only 1 order exists / last page reached</td><td>Render</td><td>Single card renders with no grouping headers dropped; at the last page show "No more orders" footer instead of the load-more spinner</td></tr><tr><td>A14</td><td>Concurrency</td><td>Order auto-completes (In use → Used) while the user stares at the list</td><td>—</td><td>On next silent refresh or pull-to-refresh, the card re-sorts into the Used group and swaps its buttons to Reorder · View detail + delete icon</td></tr></tbody></table></div>
+<h4 id="p-01-d1-cancel-order-confirm-dialog">P-01-D1 — Cancel-order confirm dialog<a class="anchor" href="#p-01-d1-cancel-order-confirm-dialog" aria-label="Link to this section">#</a></h4>
+<ul><li><strong>Trigger</strong>: (2) tap "Cancel order" on an <strong>Unused</strong> card.</li><li><strong>Title / body</strong>: "Are you sure you want to cancel this order?"</li><li><strong>Buttons</strong>: <strong>Confirm</strong> (destructive) → call cancel API, on success status → Canceled and refund is issued automatically; <strong>Don't cancel yet</strong> (safe, default-highlighted) → close, no change.</li><li><strong>Abnormal</strong>: while the Confirm request is in flight the button is loading+disabled (A6); on failure see A5; if the order was already moved off Unused before Confirm, see A4.</li></ul>
+<h4 id="p-01-d2-delete-order-confirm-dialog">P-01-D2 — Delete-order confirm dialog<a class="anchor" href="#p-01-d2-delete-order-confirm-dialog" aria-label="Link to this section">#</a></h4>
+<ul><li><strong>Trigger</strong>: (5) tap the delete (trash) icon on a <strong>Used</strong> or <strong>Canceled</strong> card.</li><li><strong>Title / body</strong>: "Are you sure you want to delete this order?"</li><li><strong>Buttons</strong>: <strong>Confirm</strong> (destructive) → delete the order, remove the card from the list; <strong>Cancel</strong> (safe) → close, no change.</li><li><strong>Abnormal</strong>: on API failure see A8; delete is a soft-hide on the backend (Ops still retains the record per the permission matrix) but the user sees it gone.</li></ul>
+<hr>
+<h3 id="p-02-store-detail">P-02 — Store detail<a class="anchor" href="#p-02-store-detail" aria-label="Link to this section">#</a></h3>
+<p>The spot a user lands on from (1) / (6). Specced more briefly with the same canonical tables — it re-books a wash, feeding a new <strong>Unused</strong> order back to P-01.</p>
+<h4 id="field-spec">Field spec<a class="anchor" href="#field-spec" aria-label="Link to this section">#</a></h4>
+<div class="table-wrap"><table><thead><tr><th>Field</th><th>Description</th><th>Data source</th></tr></thead><tbody><tr><td>Spot name</td><td>2–12 characters</td><td>Backend</td></tr><tr><td>Detailed address</td><td>6–20 characters; single line, overflow shows "…"</td><td>Backend</td></tr><tr><td>Image gallery</td><td>All backend-uploaded images, first as cover</td><td>Backend</td></tr><tr><td>Business hours</td><td>Format: <code>08:00–22:00</code>; if closed now, show "Closed" tag</td><td>Backend</td></tr><tr><td>Distance</td><td>e.g. <code>1.2 km</code>; computed from user location and shop geo</td><td>Computed</td></tr><tr><td>Wash type + price</td><td>Fine wash ¥25 / Quick wash ¥15, integer</td><td>Backend</td></tr><tr><td>Availability</td><td>Idle machine count, e.g. "3 machines free"</td><td>API <code>GET /shops/008/machines</code> → free_count</td></tr></tbody></table></div>
+<h4 id="condition-spec">Condition spec<a class="anchor" href="#condition-spec" aria-label="Link to this section">#</a></h4>
+<div class="table-wrap"><table><thead><tr><th>Precondition</th><th>Sort rule</th><th>Load rule</th></tr></thead><tbody><tr><td>Reached from P-01 (card / Reorder) or from search; login not required to view, required to book</td><td>Wash-type options sorted Fine wash then Quick wash</td><td>Load shop detail on entry; refresh availability every 30s while page is foregrounded</td></tr></tbody></table></div>
+<h4 id="state-booking-transition">State (booking) transition<a class="anchor" href="#state-booking-transition" aria-label="Link to this section">#</a></h4>
+<div class="table-wrap"><table><thead><tr><th>From state</th><th>Trigger / condition</th><th>To state</th></tr></thead><tbody><tr><td>Viewing</td><td>Tap "Book" while logged out</td><td>Redirect to login, return to P-02</td></tr><tr><td>Viewing</td><td>Tap "Book" + pick wash type + pay success</td><td>New order created → <strong>Unused</strong> (appears on P-01)</td></tr><tr><td>Viewing</td><td>Shop shows 0 free machines</td><td>"Book" disabled with "No machine free right now"</td></tr></tbody></table></div>
+<h4 id="interactions-normal-abnormal">Interactions (normal + abnormal)<a class="anchor" href="#interactions-normal-abnormal" aria-label="Link to this section">#</a></h4>
+<ul><li><strong>Normal</strong>: tap a wash type → highlight + show its price; tap <strong>Book</strong> → go to pay; pay success → toast "Booked" and return to P-01 with the new Unused order pinned on top of its group.</li><li><strong>Abnormal</strong>:</li><li>Shop delisted/closed on open → show a closed state, disable Book (mirrors P-01 A9).</li><li>Availability drops to 0 between load and Book tap → block with "No machine free right now", re-fetch availability.</li><li>Pay fails/cancelled → stay on P-02, no order created, toast "Payment not completed".</li><li>Offline → [Global spec · Offline]; Book disabled until network returns.</li></ul>
+<blockquote><p><strong>P-03 — Start machine</strong> (machine 009) is the hand-off target of (3)/(4). It is owned by the <em>Start-machine bridge</em> module in the schedule and specced in its own PRD; P-01 only needs to route to it and pass <code>order_id</code> + <code>machine_id</code>.</p></blockquote>
+<hr>
+<h2 id="4-non-functional-requirements">4. Non-functional requirements<a class="anchor" href="#4-non-functional-requirements" aria-label="Link to this section">#</a></h2>
+<h3 id="41-event-tracking-analytics">4.1 Event-tracking (analytics)<a class="anchor" href="#41-event-tracking-analytics" aria-label="Link to this section">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>Event</th><th>Trigger timing</th><th>Properties</th><th>Notes</th></tr></thead><tbody><tr><td><code>order_list_view</code></td><td>P-01 finishes first render</td><td><code>order_count</code>, <code>unused_count</code>, <code>source</code> (tab/deeplink)</td><td>Page-view rate for the Orders tab</td></tr><tr><td><code>order_card_click</code></td><td>(1) tap card / spot name</td><td><code>order_id</code>, <code>status</code>, <code>position</code></td><td>Feeds the list→detail funnel</td></tr><tr><td><code>order_cancel_click</code></td><td>(2) tap "Cancel order"</td><td><code>order_id</code></td><td>Top of the cancel funnel</td></tr><tr><td><code>order_cancel_confirm</code></td><td>P-01-D1 Confirm tapped</td><td><code>order_id</code>, <code>result</code> (success/fail)</td><td>Cancel completion &amp; failure rate</td></tr><tr><td><code>order_go_wash_click</code></td><td>(3) tap "Go wash"</td><td><code>order_id</code>, <code>machine_id</code></td><td>Core conversion: booking → wash</td></tr><tr><td><code>order_reorder_click</code></td><td>(6) tap "Reorder"</td><td><code>order_id</code>, <code>shop_id</code></td><td>Repeat-purchase signal</td></tr><tr><td><code>order_delete_confirm</code></td><td>P-01-D2 Confirm tapped</td><td><code>order_id</code>, <code>result</code></td><td>Delete completion rate</td></tr><tr><td><code>store_detail_book_click</code></td><td>P-02 tap "Book"</td><td><code>shop_id</code>, <code>wash_type</code>, <code>price</code></td><td>Rebook funnel from P-02</td></tr></tbody></table></div>
+<h3 id="42-performance">4.2 Performance<a class="anchor" href="#42-performance" aria-label="Link to this section">#</a></h3>
+<ul><li>P-01 first meaningful paint ≤ <strong>1.5s</strong> on a 4G connection; skeleton shown within 300ms.</li><li>Order-list API p95 latency ≤ <strong>500ms</strong> for a 10-item batch; pagination request ≤ <strong>400ms</strong>.</li><li>Cancel / delete actions give optimistic UI feedback within <strong>100ms</strong> (spinner) and reconcile on API return.</li><li>List renders smoothly (≥ 55 FPS scroll) up to <strong>500</strong> cached orders; beyond that, older batches are windowed/recycled.</li></ul>
+<h3 id="43-compatibility">4.3 Compatibility<a class="anchor" href="#43-compatibility" aria-label="Link to this section">#</a></h3>
+<ul><li><strong>iOS</strong> 14+ and <strong>Android</strong> 9+ (API 28+).</li><li>Phone form factor is primary; tablet renders the same single-column list centered at max width 640px.</li><li>Handles safe-area insets (notch / home indicator); the bottom tab bar (Home / Orders / Mine) stays above the gesture bar.</li><li>Right-to-left locales mirror the layout; the address "…" overflow truncation flips accordingly.</li></ul>
+<hr>
+<h2 id="5-change-log">5. Change log<a class="anchor" href="#5-change-log" aria-label="Link to this section">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>Version</th><th>Date</th><th>Author</th><th>Change</th></tr></thead><tbody><tr><td>v1.3</td><td>2026-07-11</td><td>Jordan Wei</td><td>Order Center rework: status-grouped P-01, inline Cancel/Go-wash/View-detail/Reorder + delete, P-01-D1/D2 confirm dialogs, full abnormal-path table, P-02 rebook entry.</td></tr><tr><td>v1.2</td><td>2026-06-02</td><td>Jordan Wei</td><td>Added silent single-card refresh on return from detail; introduced global offline banner.</td></tr><tr><td>v1.1</td><td>2026-04-18</td><td>Amy Lin</td><td>First inline "Cancel order" action on the flat, time-sorted list (pre-grouping).</td></tr><tr><td>v1.0</td><td>2026-03-15</td><td>Jordan Wei</td><td>Initial Order list: flat reverse-chronological list, tap-through to store detail only.</td></tr></tbody></table></div>
+</main>
+</div>
+<!-- Mermaid via CDN. For offline rendering, save the UMD build to
+     assets/vendor/mermaid.min.js and it will be inlined instead. -->
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' });
+  try { await mermaid.run({ querySelector: '.mermaid' }); } catch (e) {}
+</script>
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+  if (!links.length) return;
+  var map = {};
+  var targets = [];
+  links.forEach(function (a) {
+    var id = decodeURIComponent(a.getAttribute('href').slice(1));
+    var el = document.getElementById(id);
+    if (el) { map[id] = a; targets.push(el); }
+  });
+  function clear() { links.forEach(function (a) { a.classList.remove('active'); }); }
+  var observer = new IntersectionObserver(function (entries) {
+    // Pick the entry closest to the top that is intersecting.
+    var visible = entries.filter(function (e) { return e.isIntersecting; });
+    if (!visible.length) return;
+    visible.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+    var id = visible[0].target.id;
+    if (map[id]) {
+      clear();
+      map[id].classList.add('active');
+      map[id].scrollIntoView({ block: 'nearest' });
+    }
+  }, { rootMargin: '0px 0px -75% 0px', threshold: 0 });
+  targets.forEach(function (t) { observer.observe(t); });
+
+  // Fallback / first-paint: highlight the nearest heading above the viewport top.
+  function syncOnScroll() {
+    var best = null, bestTop = -Infinity;
+    targets.forEach(function (t) {
+      var top = t.getBoundingClientRect().top;
+      if (top <= 120 && top > bestTop) { bestTop = top; best = t; }
+    });
+    if (best && map[best.id]) { clear(); map[best.id].classList.add('active'); }
+  }
+  window.addEventListener('scroll', function () {
+    window.requestAnimationFrame(syncOnScroll);
+  }, { passive: true });
+  syncOnScroll();
+})();
+</script>
+</body>
+</html>
