@@ -1,0 +1,4 @@
+interface:
+  display_name: "PRD Writer"
+  short_description: "Write engineer-ready PRDs from a requirement or feature idea"
+  default_prompt: "Use $prd-writer to turn this requirement into a PRD engineers can build from with fewer questions: four-dimension function specs (fields/data-source, precondition/sort/refresh, state transitions, normal+abnormal interactions), E-R diagram, role-permission matrix, layered flowcharts, and define-once global states."
