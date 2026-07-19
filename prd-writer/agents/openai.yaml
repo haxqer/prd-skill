@@ -1,4 +1,4 @@
 interface:
   display_name: "PRD Writer"
-  short_description: "Write engineer-ready PRDs from a requirement or feature idea"
-  default_prompt: "Use $prd-writer to turn this requirement into a PRD engineers can build from with fewer questions: four-dimension function specs (fields/data-source, precondition/sort/refresh, state transitions, normal+abnormal interactions), E-R diagram, role-permission matrix, layered flowcharts, and define-once global states."
+  short_description: "Write engineer-ready PRDs as self-contained annotated HTML, in your own language"
+  default_prompt: "Use $prd-writer to turn this requirement into a PRD engineers can build from with fewer questions. Deliver a single self-contained annotated HTML file (no external requests), written in my language: pixel-faithful in-document mockups with numbered markers keyed one-to-one to their explanation tables, four-dimension function specs (fields/data-source, precondition/sort/refresh, state transitions, normal+abnormal interactions), inline-SVG E-R and state diagrams, role-permission matrix, layered flowcharts, define-once global rules cited by ID, change points, and open questions that each ship a default. Run scripts/verify_prd_html.py before handing it over."
