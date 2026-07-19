@@ -100,4 +100,3 @@ the picture?* If yes, write the decision â€” and its divergence from the input â
 For an iteration: cite calibers by **G-ID** so a rule change is one edit; lead with a **change-points table** whose
 **impact** column re-scopes truthfully as things churn; keep an **open-questions table** where every row has a
 **default** and resolves in place; and remember the PRD encodes **decisions**, not whatever a demo happened to draw.
-</content>

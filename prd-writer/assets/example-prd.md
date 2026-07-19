@@ -1,3 +1,6 @@
+> **A worked example of the lightweight Markdown alternative — not the default format, and not a language mandate.**
+> It is in English because its imagined author wrote in English. Write your own PRD in **the user's** language.
+
 # Car-Wash App — Order Center (Order List + Store Detail)
 
 > Owner: Jordan Wei | Version: v1.3 | Last updated: 2026-07-11

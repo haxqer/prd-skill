@@ -1,17 +1,39 @@
 <!doctype html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>&lt;Feature&gt; PRD — Annotated HTML template</title>
+<title>&lt;Product&gt; &lt;产品中文名&gt; · PRD v1.0</title>
 <!--
-  HAND-AUTHORED ANNOTATED HTML PRD — starter skeleton.
-  See references/annotated-html-mockups.md (the technique) and references/iterating-a-live-product.md (G-rules /
-  change-points / open-questions). This is the *second* authoring mode; most PRDs use Markdown + scripts/prd_to_html.py.
+  ============================================================================
+  HAND-AUTHORED ANNOTATED HTML PRD — starter skeleton + full component catalog.
+  This is the skill's DEFAULT deliverable format. One file, zero external
+  requests: no CDN, no web fonts, no images. Every visual below is inline SVG
+  or pure CSS.
 
-  How to use: fill every <…> placeholder, copy component blocks as needed, delete sections you don't need.
-  After each edit batch, run the four checks in annotated-html-mockups.md §Verification (tag balance, marker↔table
-  continuity, clip check, stale-string grep). The <style> block below is a proven design system — reuse it as-is.
+  >>> LANGUAGE <<<
+  This file ships with lang="zh-CN" and Chinese placeholder copy because that
+  is the most common case for this corpus. CHANGE `lang` ON THE <html> TAG TO
+  MATCH THE LANGUAGE YOU ACTUALLY WRITE IN (lang="en", lang="ja", …) and
+  translate the placeholder copy with it. Keep the CJK faces
+  ("PingFang SC","Hiragino Sans GB","Microsoft YaHei") in the font stack in
+  every language — mixed-script PRDs are normal and product / metric / entity
+  names stay in their original English regardless of the doc language.
+
+  >>> HOW TO USE <<<
+  1. Fill every <…> placeholder. Delete sections that do not apply.
+  2. For each screen: copy a .screen block, then copy the .anno-wrap component
+     below that most resembles the UI you are specifying and re-label it.
+     The <style> block is a proven design system — reuse it verbatim.
+  3. Keep the three numbering systems separate:
+       • .mk / .nbadge  → plain Arabic 1..N, restarting at 1 in each .anno-wrap,
+                          ascending with NO gaps, in visual reading order.
+       • ① ② ③ ④        → ONLY the four .spec labels, .flow node text, and prose
+                          that names the four dimensions.
+       • .marker        → Arabic for 正常 items; literal `!` in red (.marker.err)
+                          for EVERY 异常 item, which are never numbered.
+  4. Before handing over, run: python3 scripts/verify_prd_html.py <file>.html
+  ============================================================================
 -->
 <style>
   :root{
@@ -122,10 +144,17 @@
   .dialog .dt{font-weight:700;color:#1f2937;font-size:13px}
   .dialog .db{color:#6b7688;font-size:12px;margin:4px 0 12px}
   .dialog .da{text-align:right}
-  .dialog .btn{display:inline-block;padding:3px 14px;border-radius:6px;font-size:12px;margin-left:8px}
-  .dialog .btn.ghost{color:#6b7688}
-  .dialog .btn.primary{background:var(--brand);color:#fff}
-  .dialog .btn.danger{background:var(--red);color:#fff}
+  /* .btn is shared by .dialog AND .mock. It used to be scoped to .dialog only,
+     which forced every write-path mockup to inline-style its action buttons.
+     Do NOT inline-style a button — use .btn / .btn.primary / .btn.ghost /
+     .btn.danger. Same four names, same colours, both contexts. */
+  .dialog .btn,.mock .btn{display:inline-block;padding:3px 14px;border-radius:6px;font-size:12px;margin-left:8px}
+  .dialog .btn.ghost,.mock .btn.ghost{color:#6b7688}
+  .dialog .btn.primary,.mock .btn.primary{background:var(--brand);color:#fff}
+  .dialog .btn.danger,.mock .btn.danger{background:var(--red);color:#fff}
+  /* A .mock canvas is grey (#e9eef6), so a non-solid button needs its own
+     chrome to read as a control; inside a .dialog the grey panel already does. */
+  .mock .btn:not(.primary):not(.danger){background:#fff;border:1px solid #dfe5ee;padding:4px 14px}
   /* diagram container */
   .diagram{overflow-x:auto;padding:12px 4px;background:#fbfcfe;border:1px solid var(--line);border-radius:10px;margin:8px 0}
   .diagram svg{display:block}
@@ -137,7 +166,7 @@
   .flow .node.warnn{background:#fdf3e7;border-color:var(--orange);color:#9a5b16}
   .flow .arw{color:#9aa6b8;font-size:18px;font-weight:700}
   .flow .lbl{font-size:11px;color:#8592a6;padding:0 2px}
-  /* ---- annotated demo mockup ---- */
+  /* ---- annotated mockup shell ---- */
   .anno-wrap{border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:16px 0 4px;background:#fbfcff}
   .anno-title{display:inline-block;font-size:12.5px;font-weight:800;padding:4px 14px;border-radius:8px;background:#132a56;color:#fff;margin-bottom:14px}
   .mock{position:relative;background:#e9eef6;border:1px solid #dde4ef;border-radius:12px;padding:18px 18px 16px 20px;overflow:hidden}
@@ -145,6 +174,7 @@
   .mock-cols{display:flex;gap:14px;align-items:flex-start}
   .mock-main{flex:1;min-width:0}
   .mock-side{flex:0 0 148px;background:#fff;border:1px solid #e6ebf3;border-radius:10px;padding:8px}
+  /* ---- mock primitives ---- */
   .manchor{padding:6px 10px;font-size:12px;color:#7a8698;border-radius:7px}
   .manchor.active{color:var(--brand);font-weight:700;background:#eef3ff;border-left:3px solid var(--brand)}
   .mtab{display:inline-block;padding:7px 15px;border-radius:14px;font-size:12.5px;font-weight:600;background:#dfe4ee;color:#7a8698}
@@ -172,6 +202,45 @@
   .mtbl td{padding:7px 8px;border-top:1px solid #eef1f6;vertical-align:middle;white-space:nowrap}
   .mava{width:22px;height:22px;border-radius:50%;background:#d3ddec;display:inline-block;vertical-align:middle;margin-right:5px}
   .mhandle{font-size:10px;color:#8592a6}
+  /* ---- write-path primitives: status badge + form controls ----
+     The rest of this catalog is read-only (metrics, leaderboards, tables).
+     Anything with a write path — an approval queue, an edit form, a reject
+     dialog — uses the two families below. Use them; do not invent a parallel
+     set, because two PRDs that each invent their own stop matching. */
+  /* Status badge. The six modifiers are the SEMANTIC state families and are
+     colour-locked to the SVG state table in references/design-system.md §4:
+     background = that row's `fill`, text = that row's `text`. A status badge
+     and an SVG state node for the same state therefore always match.
+     Name them by family (.mst.success), never by domain (.mst.accepted) —
+     put the domain word in the badge TEXT and the enum value in a <code>. */
+  .mst{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11px;font-weight:700;line-height:1.7;white-space:nowrap}
+  .mst.neutral{background:#eef2f7;color:#475569}   /* idle / empty / not started */
+  .mst.loading{background:#faf5ff;color:#5a3fb0}   /* in progress / generating   */
+  .mst.success{background:#eef7f2;color:#166c3c}   /* done / active / terminal   */
+  .mst.error  {background:#fdeae8;color:#a83232}   /* failed / rejected / revoked*/
+  .mst.warn   {background:#fdf6ec;color:#9a5b16}   /* stale / expired / overdue  */
+  .mst.primary{background:#eef3ff;color:#1b3a70}   /* awaiting action / pending  */
+  /* Form controls. .mfield is the wrapper: > .l is the label, > .v is the box.
+     Reuses the .l / .v vocabulary of .mmetric and .mtile on purpose. */
+  .mfield{margin:9px 0}
+  .mfield>.l{display:block;font-size:10.5px;color:#8592a6;margin-bottom:3px}
+  .mfield>.v{background:#fff;border:1px solid #dfe5ee;border-radius:8px;padding:6px 10px;font-size:11.5px;color:#2d3c57;min-height:30px}
+  .mfield>.v.ph{color:#9aa6b8}                                  /* placeholder / empty  */
+  .mfield>.v.ro{background:#f7f9fc;color:#8592a6}               /* read-only / disabled */
+  .mfield>.v.err{border-color:var(--red);background:#fffafa}    /* validation failure   */
+  .mfield .mhint{font-size:10px;color:#9aa6b8;margin-top:3px}
+  .mfield .mhint.err{color:var(--red)}
+  .mreq{color:var(--red);font-weight:700;margin-left:2px}       /* the required "*"     */
+  .mta{display:block;background:#fff;border:1px solid #dfe5ee;border-radius:8px;padding:8px 10px;font-size:11.5px;color:#9aa6b8;min-height:58px}
+  .msel{position:relative;display:block;background:#fff;border:1px solid #dfe5ee;border-radius:8px;padding:6px 26px 6px 10px;font-size:11.5px;color:#2d3c57}
+  .msel:after{content:"▾";position:absolute;right:9px;top:4px;color:#9aa6b8;font-size:11px}
+  .mcnt{font-size:10px;color:#9aa6b8;text-align:right;margin-top:3px}   /* "0 / 500" */
+  .mcnt.over{color:var(--red);font-weight:700}
+  .mchk{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;color:#54657f;margin-right:14px}
+  .mchk:before{content:"";display:inline-block;width:13px;height:13px;flex:0 0 13px;border:1.4px solid #c3cddc;border-radius:3px;background:#fff}
+  .mchk.on:before{content:"✓";background:var(--brand);border-color:var(--brand);color:#fff;
+    font-size:9px;font-weight:800;display:flex;align-items:center;justify-content:center}
+  /* ---- the marker triad ---- */
   .anno{position:relative}
   .mk{position:absolute;left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;
     background:var(--brand);color:#fff;font-size:11.5px;font-weight:800;
@@ -182,17 +251,58 @@
   .mseg{position:relative;display:inline-flex;gap:2px;background:#f5f7fb;border:1px solid #e5e9f2;border-radius:12px;padding:3px}
   .mseg>span:not(.mk){padding:4px 12px;border-radius:9px;font-size:11.5px;color:#7a8698}
   .mseg>span.active{background:#fff;color:#2d3c57;font-weight:700;box-shadow:0 6px 14px -12px rgba(15,23,42,.5)}
-  /* post-details drawer / hover card / mini chart */
+  /* ---- leaderboard / ranked bar list ---- */
+  .mlb-row{display:flex;align-items:center;gap:10px;margin:10px 0}
+  .mlb-av{width:30px;height:30px;border-radius:50%;background:#d3ddec;flex:0 0 30px;position:relative}
+  .mlb-crown{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:13px}
+  .mlb-bar{height:15px;border-radius:8px;background:#e6ecf5;flex:1;overflow:hidden}
+  .mlb-fill{height:100%;border-radius:8px}
+  .mlb-val{font-size:12px;color:#6b7688;flex:0 0 46px;text-align:right;font-weight:600}
+  /* ---- breakdown matrix ---- */
+  .mbk{width:100%;border-collapse:collapse;font-size:11.5px;background:#fff;border-radius:8px;overflow:hidden}
+  .mbk th,.mbk td{padding:7px 8px;text-align:center;border-top:1px solid #eef1f6;white-space:nowrap}
+  .mbk tr:first-child th{border-top:none;color:#54657f}
+  .mbk td:first-child,.mbk th:first-child{text-align:left;background:#f9fbfe;font-weight:600;color:#54657f}
+  .mbk .val{color:#2d3c57;font-weight:600;background:#f3f7fd}
+  /* ---- horizontal timeline ---- */
+  .mtl{position:relative;height:104px;border-bottom:2px solid #d7dfec;margin:14px 0 22px;min-width:520px}
+  .mtl-node{position:absolute;bottom:0;transform:translateX(-50%)}
+  .mtl-av{width:30px;height:30px;border-radius:50%;background:#d3ddec;border:2px solid #fff;box-shadow:0 2px 6px rgba(15,23,42,.15);margin:0 auto}
+  .mtl-date{font-size:10px;color:#8592a6;position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;white-space:nowrap}
+  /* ---- top-content carousel ---- */
+  .mtc-row{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 6px 2px}
+  .mtc-card{flex:0 0 118px;border-radius:8px;overflow:hidden;position:relative}
+  .mtc-cover{height:150px;background:linear-gradient(160deg,#3b4a63,#0f172a);position:relative}
+  .mtc-ico{position:absolute;top:8px;right:8px;width:22px;height:22px;border-radius:50%;background:rgba(15,23,42,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px}
+  .mtc-meta{position:absolute;bottom:0;left:0;right:0;padding:8px;color:#fff;font-size:9px;line-height:1.55;background:linear-gradient(180deg,transparent,rgba(15,23,42,.72))}
+  .mtc-meta .mk{left:6px;top:-14px}
+  /* ---- hover preview card / drawer / mini chart ---- */
   .popcard{width:230px;background:#fff;border:1px solid #e6ebf3;border-radius:12px;padding:10px;box-shadow:0 16px 36px -26px rgba(15,23,42,.4)}
+  .pc-head{display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:#64748b;font-weight:600}
+  .pc-url{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:8px 0;padding:6px 8px;border:1px solid #e6ebf3;border-radius:8px;font-size:10px;color:#2a66e8;background:#f8fafc}
+  .pc-cover{height:88px;border-radius:8px;background:linear-gradient(160deg,#9ec5e8,#cfe0f0)}
+  /* .drawer is 340px by default — the read-only detail width. A write-path
+     drawer (form fields, thumbnails, an audit log) needs .drawer.wide = 480px.
+     These are the ONLY two widths. Never override the width with an inline
+     style: the number in the mock and the number quoted in the .screen-desc
+     prose then drift apart, and the reader cannot tell which one is the spec.
+     Pick a class, and quote ITS number (340px / 480px) in the prose. */
   .drawer{width:340px;max-width:100%;background:#fff;border:1px solid #e6ebf3;border-radius:14px;box-shadow:0 22px 50px -30px rgba(15,23,42,.4)}
+  .drawer.wide{width:480px}
   .drawer-head{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #eef1f6;font-weight:800;color:#1f2b45;border-radius:14px 14px 0 0;background:#fff}
   .drawer-body{padding:12px 14px}
+  .dk-av{width:30px;height:30px;border-radius:50%;background:#d3ddec;flex:0 0 30px}
+  .dcover{width:92px;height:126px;border-radius:10px;background:linear-gradient(160deg,#9ec5e8,#cfe0f0);flex:0 0 92px}
   .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:4px}
   .mtile{background:#f7f9fc;border:1px solid #eef1f6;border-radius:9px;padding:7px 8px}
   .mtile .l{font-size:9px;color:#8592a6;line-height:1.3}
   .mtile .v{font-size:13px;font-weight:800;color:#1f2b45;margin-top:3px}
   .mtile.ocr{background:#fff6ed;border-color:#f4dcc0}
   .mtile.ocr .l{color:#b5762a}
+  .minichart{width:250px;background:#fff;border:1px solid #e6ebf3;border-radius:12px;padding:12px 14px;box-shadow:0 16px 36px -26px rgba(15,23,42,.4)}
+  .mc-bars{display:flex;align-items:flex-end;gap:5px;height:52px;margin-top:8px;border-top:1px dashed #d7dfec;padding-top:0}
+  .mc-bars i{flex:1;border-radius:3px;background:#9fd6ff}
+  .mc-bars i.cur{background:#2a66e8}
   /* footer */
   .foot{margin-top:60px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
   @media(max-width:980px){
@@ -205,182 +315,986 @@
 </head>
 <body>
 <div class="layout">
-  <!-- ============ TOC (sticky). Keep hrefs in sync with section ids. ============ -->
-  <nav class="toc">
-    <h1>&lt;Feature&gt; PRD</h1>
-    <div class="ver">v2.0 · YYYY-MM-DD</div>
-    <div class="grp">一 · 背景</div>
-    <a href="#s1">1. 背景与定位</a>
-    <a href="#s1" class="lv2">1.1 使用场景</a>
-    <div class="grp">二 · 全局</div>
-    <a href="#s2">2. 全局规则 (G)</a>
-    <a href="#s2" class="lv2">2.1 权限矩阵</a>
-    <div class="grp">三 · 页面</div>
-    <a href="#s3">3. 页面标注</a>
-    <a href="#s3" class="lv2">P1 · Overview</a>
-    <div class="grp">四 · 变更</div>
-    <a href="#s4">4. 本版变更点</a>
-    <a href="#s5">5. 待确认项</a>
-    <a href="#s6" class="lv2">修改记录</a>
-  </nav>
+  <!-- ================= TOC (sticky). Keep hrefs in sync with section ids. ================= -->
+  <aside class="toc">
+    <h1>&lt;Product&gt;</h1>
+    <div class="ver">&lt;产品中文名&gt; · PRD v1.0</div>
+    <a href="#info">文档信息</a>
+    <div class="grp">一 · 概述</div>
+    <a href="#s1">一、产品简介</a>
+    <a href="#s2">二、行业与业务背景</a>
+    <div class="grp">三 · 版本管理</div>
+    <a href="#s3">三、版本管理</a>
+    <a href="#s31b">3.1 排期表</a>
+    <a href="#s32">3.2 产品设计</a>
+    <a class="lv2" href="#s321">3.2.1 实体关系图</a>
+    <a class="lv2" href="#s322">3.2.2 角色权限表</a>
+    <a class="lv2" href="#s323">3.2.3 业务流程图</a>
+    <a class="lv2" href="#s324">3.2.4 全局说明</a>
+    <a class="lv2" href="#s325"><b>★ 3.2.5 需求·功能·交互</b></a>
+    <a class="lv3" href="#p0">P0 入口</a>
+    <a class="lv3" href="#p1">P1 概览页</a>
+    <a class="lv3" href="#p1d">P1.1 明细抽屉</a>
+    <a class="lv3" href="#p2">P2 审批抽屉（写路径）</a>
+    <a href="#s33">3.3 非功能需求</a>
+    <a href="#s34">3.4 修改记录</a>
+    <div class="grp">附</div>
+    <a href="#s4">四、本版变更点</a>
+    <a href="#s5">五、待确认项</a>
+    <a href="#sb">附录 A · 指标字典</a>
+  </aside>
 
+  <!-- ================= CONTENT ================= -->
   <main class="content">
-    <!-- ============ Doc header ============ -->
-    <div class="doc-head">
-      <div class="title">&lt;Feature&gt; — 产品需求文档</div>
-      <div class="sub">&lt;one-line positioning&gt;</div>
+
+    <!-- 文档信息 -->
+    <section id="info" class="doc-head">
+      <div class="title">&lt;Product&gt; — &lt;产品中文名&gt; PRD</div>
+      <div class="sub">版本 v1.0（&lt;一句话说明来源&gt;）· YYYY-MM-DD · 评审稿</div>
       <table class="meta-table">
-        <tr><td>负责人</td><td>&lt;owner&gt;</td><td>版本</td><td>v2.0</td></tr>
-        <tr><td>更新日期</td><td>YYYY-MM-DD</td><td>状态</td><td>草稿 / 评审 / 定稿</td></tr>
+        <tr><td>需求来源</td><td>&lt;来源，如「业务方手绘 Demo（概览 / 明细两页）」&gt;</td><td>文档状态</td><td>评审稿</td></tr>
+        <tr><td>关联文档</td><td>&lt;上游 PRD&gt; <code>&lt;path/to/prd.html&gt;</code></td><td>数据源</td><td>&lt;上游模块&gt; <code>&lt;module&gt;</code></td></tr>
+        <tr><td>编写范式</td><td colspan="3">核心「需求·功能·交互说明」按四维展开：<b style="color:var(--blue)">① 字段/说明/数据来源</b> · <b style="color:var(--teal)">② 前置条件/排序/刷新</b> · <b style="color:var(--purple)">③ 状态流转</b> · <b style="color:var(--orange)">④ 交互（正常+异常）</b></td></tr>
       </table>
-    </div>
-
-    <!-- ============ 一 背景与定位 ============ -->
-    <h2 class="sec" id="s1">一、背景与定位</h2>
-    <div class="callout info"><b>本版定位：</b>&lt;what this version is; what it changes vs v1&gt;。未列出的板块口径与实现沿用 v1.0。</div>
-
-    <h3>1.1 核心使用场景</h3>
-    <!-- one-line horizontal flow; .term = terminal node -->
-    <div class="flow">
-      <span class="node">① &lt;entry&gt;</span><span class="arw">→</span>
-      <span class="node">② &lt;step&gt;</span><span class="arw">→</span>
-      <span class="node">③ &lt;step&gt;</span><span class="arw">→</span>
-      <span class="node term">④ &lt;done&gt;</span>
-    </div>
-
-    <!-- ============ 二 全局规则 (single source of truth; cite by ID everywhere) ============ -->
-    <h2 class="sec" id="s2">二、全局规则（G · 单一事实源）</h2>
-    <div class="callout rule">下列口径为全文<b>唯一事实源</b>；各模块<b>只引用 ID</b>（如「加权 (G2)」）而不复述。改口径 = 改这里一行，全文引用自动生效。</div>
-    <table class="data">
-      <tr><th style="width:70px">ID</th><th>规则</th></tr>
-      <tr><td>G1</td><td>&lt;e.g. Engagements = Likes + Comments + Shares + Saves&gt;</td></tr>
-      <tr><td>G2</td><td>&lt;e.g. 所有比率一律加权：Σ分子 ÷ Σ分母，不取行平均&gt;</td></tr>
-      <tr><td>G3</td><td>&lt;e.g. 除零显示 "—"，不显示 0 / NaN&gt;</td></tr>
-      <tr><td>G4</td><td>&lt;e.g. 全报表时间固定 UTC (GMT+0)&gt;</td></tr>
-    </table>
-
-    <h3 id="s2p1">2.1 角色权限矩阵</h3>
-    <table class="data">
-      <tr><th>功能 / 数据</th><th class="c">登录用户</th><th class="c">客户（公开页）</th><th class="c">超管</th></tr>
-      <tr><td>查看 Overview</td><td class="c tick">✔</td><td class="c tick">✔</td><td class="c tick">✔</td></tr>
-      <tr><td>查看金额字段</td><td class="c tick">✔</td><td class="c cross">✘ 脱敏</td><td class="c tick">✔</td></tr>
-      <tr><td>导出 Excel</td><td class="c tick">✔</td><td class="c tick">✔ 前端下载</td><td class="c tick">✔</td></tr>
-    </table>
-
-    <!-- ============ 三 页面标注 (the annotated-mockup triad) ============ -->
-    <h2 class="sec" id="s3">三、页面标注</h2>
-
-    <div class="anno-wrap">
-      <span class="anno-title">🖼 功能标注 · P1 Overview <code>#overview</code></span>
-      <div class="mock">
-        <!-- Recreate the UI faithfully. Pin a marker by wrapping the element in .anno + .mk.
-             Keep markers off the mock's top/left edge (padding absorbs the -11px overhang). -->
-        <div class="mock-row">
-          <span class="anno"><span class="mk">1</span><span class="mtab active">Overview</span></span>
-          <span class="mtab">Influencer</span>
-          <span style="flex:1"></span>
-          <span class="anno"><span class="mk">2</span><span class="mbtn">Share</span></span>
-          <span class="mbtn ai">AI Summary</span>
-        </div>
-        <div class="mtitle">Performance</div>
-        <span class="anno mchips"><span class="mk">3</span>
-          <span class="mchip active">All</span><span class="mchip">Instagram</span><span class="mchip">TikTok</span><span class="mchip">YouTube</span>
-        </span>
-        <div class="anno" style="margin-top:8px"><span class="mk">4</span>
-          <div class="mgrid">
-            <div class="mmetric"><div class="l">Total Views</div><div class="v">N/A</div></div>
-            <div class="mmetric"><div class="l">Total Likes</div><div class="v">N/A</div></div>
-            <div class="mmetric rate"><div class="l">Engagement Rate %</div><div class="v">N/A</div></div>
-          </div>
-        </div>
+      <div class="callout info" style="margin-bottom:0">
+        <b>本版定位：</b>&lt;本版做什么、相对上一版改了什么、变更清单在哪&gt;。未列出的板块口径与实现<b>沿用 v0.9</b>，变更点见 <a class="inline" href="#s4">§四</a>。
       </div>
-    </div>
+    </section>
 
-    <!-- Explanation table: one row per marker, numbers in lockstep with the mockup -->
+    <!-- 一、产品简介 -->
+    <h2 class="sec" id="s1">一、产品简介</h2>
+
+    <h3>1.1 产品定位</h3>
+    <p>&lt;两三句话，说清它是什么、把什么原始数据变成什么可交付物、给谁看&gt;。</p>
     <table class="data">
-      <tr><th style="width:52px">标号</th><th style="width:190px">含义（元素）</th><th style="width:33%">交互</th><th>逻辑 / 数据来源</th></tr>
-      <tr><td class="c"><span class="nbadge">1</span></td><td>子 Tab 切换器（Overview / Influencer）</td><td>点击切换视图，当前项高亮</td><td>默认 Overview；前端路由，无数据依赖</td></tr>
-      <tr><td class="c"><span class="nbadge">2</span></td><td>Share 按钮</td><td>点击 → 打开分享弹窗</td><td>无快照时禁用；后端 <code>crypto/rand</code> token</td></tr>
-      <tr><td class="c"><span class="nbadge">3</span></td><td>平台筛选 chip（单选）<span class="pill new">本版改造</span></td><td>点某 chip → 指标卡按该平台重取</td><td>All = 全平台汇总；平台归一 <code>LOWER(TRIM)</code></td></tr>
-      <tr><td class="c"><span class="nbadge">4</span></td><td>Performance 指标卡组</td><td>随 chip 刷新</td><td>求和 (G1)；Demo 的 <b>N/A 是占位</b>，正式版空值 "—" (G3)</td></tr>
+      <tr><th style="width:110px">维度</th><th>说明</th></tr>
+      <tr><td>我是谁</td><td>&lt;一句话定义，含核心名词&gt;</td></tr>
+      <tr><td>有什么用</td><td>&lt;替代了哪个手工动作 / 消除了哪个来回&gt;</td></tr>
+      <tr><td>为什么用</td><td>&lt;不做会怎样：口径不一 / 手工汇总 / 无法对外交付&gt;</td></tr>
     </table>
 
-    <!-- Four-dimension function spec for the same screen (mirror of the Markdown four dimensions) -->
-    <div class="screen">
-      <h4 class="screen-title">P1 · Overview — 功能与交互说明</h4>
+    <h3>1.2 目标用户与角色</h3>
+    <table class="data">
+      <tr><th style="width:130px">角色</th><th style="width:34%">场景</th><th>核心诉求</th></tr>
+      <tr><td>运营（登录用户）</td><td>日常查看与对外交付</td><td>一次看全、口径统一、可导出</td></tr>
+      <tr><td>客户（匿名访问）</td><td>收到分享链接后只读查看</td><td>无需登录、字段脱敏、链接可失效</td></tr>
+      <tr><td>超管</td><td>配置全局参数</td><td>改 TTL / 汇总时刻不改代码</td></tr>
+    </table>
+
+    <h3>1.3 核心使用场景</h3>
+    <!-- .flow chain #1 — circled numerals live in node text only -->
+    <div class="flow">
+      <span class="node">① 进入模块</span><span class="arw">→</span>
+      <span class="node">② 选择筛选条件</span><span class="arw">→</span>
+      <span class="node">③ 查看概览</span><span class="arw">→</span>
+      <span class="node">④ 下钻明细</span><span class="arw">→</span>
+      <span class="node">⑤ 生成分享链接</span><span class="arw">→</span>
+      <span class="node term">⑥ 导出 / 对外交付</span>
+    </div>
+
+    <h3>1.4 名词解释</h3>
+    <div class="callout warn"><b>⚠ 为什么需要这一节：</b>库表命名与界面命名不一致时，工程实现会按库表理解需求。凡出现「界面叫 A、DB 叫 B」的情况，一律在此钉死。</div>
+    <table class="data">
+      <tr><th style="width:170px">术语</th><th style="width:150px">数据库/接口命名</th><th>含义</th></tr>
+      <tr><td>&lt;界面名词 1&gt;</td><td><code>&lt;db_field_1&gt;</code></td><td>&lt;定义；说明为什么两边名字不同&gt;</td></tr>
+      <tr><td>&lt;界面名词 2&gt;</td><td><code>&lt;db_field_2&gt;</code></td><td>&lt;定义&gt;</td></tr>
+      <tr><td>快照</td><td><code>report_snapshot</code></td><td>每日凌晨物化的固化数据集；同页任意两处同名指标必须取自同一快照</td></tr>
+    </table>
+
+    <!-- 二、行业与业务背景 -->
+    <h2 class="sec" id="s2">二、行业与业务背景</h2>
+    <p>当前流程存在 <b>&lt;N&gt;</b> 个反复出现的痛点，本版逐条对应给出对策；下表即本文档全部设计决策的正当性来源。</p>
+    <table class="data">
+      <tr><th style="width:150px">痛点</th><th style="width:34%">表现</th><th>本产品对策</th></tr>
+      <tr><td>口径不统一</td><td>同一指标在两个页面数值不同</td><td>全局口径规则集中定义（<a class="inline" href="#s324">§3.2.4A</a>），各板块只引用 ID</td></tr>
+      <tr><td>手工汇总</td><td>每次交付需人工整理表格</td><td>每日物化快照 + 前端一键导出</td></tr>
+      <tr><td>无法对外</td><td>外部方需要账号才能看</td><td>匿名 token 只读页 + 字段脱敏白名单</td></tr>
+    </table>
+
+    <!-- 三、版本管理 -->
+    <h2 class="sec" id="s3">三、版本管理</h2>
+
+    <h3 id="s31b">3.1 排期表</h3>
+    <div class="callout info">时间为<b>建议排期</b>，最终以研发评估为准。本表是<b>活的跟踪面</b>：模块完成后由研发直接在此打勾，不另开状态表。</div>
+    <table class="data">
+      <tr><th style="width:70px">阶段</th><th style="width:150px">模块</th><th>内容</th><th style="width:200px">依赖</th></tr>
+      <tr><td>S1</td><td>数据层</td><td>快照表结构 + 每日物化任务</td><td>无</td></tr>
+      <tr><td>S2</td><td>概览页</td><td>P1 全部板块（读快照）</td><td>S1</td></tr>
+      <tr><td>S3</td><td>明细抽屉</td><td>P1.1 抽屉 + 迷你趋势</td><td>S2</td></tr>
+      <tr><td>S4</td><td>分享 / 导出</td><td>匿名 token 页 + 前端 xlsx</td><td>S2、脱敏白名单（<a class="inline" href="#sb">附录 A</a>）</td></tr>
+    </table>
+
+    <h3 id="s32">3.2 产品设计</h3>
+
+    <!-- 3.2.1 E-R —— 手写 inline SVG；不引图表库、不画 ASCII 方框图 -->
+    <h4 id="s321" style="font-size:15px;color:#1b3a70;margin-top:24px">3.2.1 实体关系图（E-R）</h4>
+    <div class="diagram">
+    <svg viewBox="0 0 880 280" width="880" height="280" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+      <defs><marker id="er-a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#94a3b8"/></marker></defs>
+      <!-- 业务实体（蓝） -->
+      <g>
+        <rect x="20" y="110" width="150" height="60" rx="8" fill="#eef3ff" stroke="#2a66e8"/>
+        <text x="95" y="135" text-anchor="middle" font-size="13" font-weight="700" fill="#1b3a70">&lt;Entity A&gt;</text>
+        <text x="95" y="153" text-anchor="middle" font-size="11" fill="#64748b">&lt;活动 / 预算 · 时区固定 UTC&gt;</text>
+      </g>
+      <g>
+        <rect x="250" y="110" width="150" height="60" rx="8" fill="#eef3ff" stroke="#2a66e8"/>
+        <text x="325" y="135" text-anchor="middle" font-size="13" font-weight="700" fill="#1b3a70">&lt;Entity B&gt;</text>
+        <text x="325" y="153" text-anchor="middle" font-size="11" fill="#64748b">&lt;关联关系表&gt;</text>
+      </g>
+      <g>
+        <rect x="480" y="30" width="150" height="60" rx="8" fill="#eef3ff" stroke="#2a66e8"/>
+        <text x="555" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#1b3a70">&lt;Entity C&gt;</text>
+        <text x="555" y="73" text-anchor="middle" font-size="11" fill="#64748b">&lt;主体 / 属性&gt;</text>
+      </g>
+      <g>
+        <rect x="480" y="190" width="150" height="60" rx="8" fill="#eef3ff" stroke="#2a66e8"/>
+        <text x="555" y="215" text-anchor="middle" font-size="13" font-weight="700" fill="#1b3a70">&lt;Entity D&gt;</text>
+        <text x="555" y="233" text-anchor="middle" font-size="11" fill="#64748b">&lt;明细 / 指标&gt;</text>
+      </g>
+      <!-- 派生实体（青 / 紫） -->
+      <g>
+        <rect x="700" y="30" width="160" height="52" rx="8" fill="#f2f9f6" stroke="#0f9d8f"/>
+        <text x="780" y="52" text-anchor="middle" font-size="12.5" font-weight="700" fill="#166c3c">ReportSnapshot</text>
+        <text x="780" y="69" text-anchor="middle" font-size="10.5" fill="#5a8575">每日物化 · Data as of</text>
+      </g>
+      <g>
+        <rect x="700" y="110" width="160" height="52" rx="8" fill="#faf5ff" stroke="#7c5cd6"/>
+        <text x="780" y="132" text-anchor="middle" font-size="12.5" font-weight="700" fill="#5a3fb0">ReportShare</text>
+        <text x="780" y="149" text-anchor="middle" font-size="10.5" fill="#8672c0">token · TTL · 脱敏开关</text>
+      </g>
+      <!-- 边 -->
+      <path d="M170,140 L246,140" stroke="#94a3b8" fill="none" marker-end="url(#er-a)"/>
+      <text x="208" y="132" text-anchor="middle" font-size="10.5" fill="#8592a6">1:N</text>
+      <path d="M400,132 L476,72" stroke="#94a3b8" fill="none" marker-end="url(#er-a)"/>
+      <text x="438" y="92" text-anchor="middle" font-size="10.5" fill="#8592a6">N:1</text>
+      <path d="M400,150 L476,212" stroke="#94a3b8" fill="none" marker-end="url(#er-a)"/>
+      <text x="438" y="196" text-anchor="middle" font-size="10.5" fill="#8592a6">1:N</text>
+      <path d="M630,56 L696,56" stroke="#94a3b8" fill="none" stroke-dasharray="4 3" marker-end="url(#er-a)"/>
+      <text x="663" y="48" text-anchor="middle" font-size="10.5" fill="#8592a6">1:N</text>
+      <path d="M170,150 C420,290 560,240 700,152" stroke="#94a3b8" fill="none" stroke-dasharray="4 3" marker-end="url(#er-a)"/>
+      <text x="430" y="272" text-anchor="middle" font-size="10.5" fill="#8592a6">1:N（每次分享派生）</text>
+    </svg>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted)">实线 = 业务实体关系；虚线 = 报表侧<b>派生实体</b>（快照 / 分享）。派生实体只读不写业务表。</p>
+
+    <!-- 3.2.2 权限 -->
+    <h4 id="s322" style="font-size:15px;color:#1b3a70;margin-top:28px">3.2.2 用户角色权限表</h4>
+    <table class="data">
+      <tr><th>能力</th><th class="c">运营（<code>&lt;PERM_CODE&gt;</code>）</th><th class="c">客户（匿名 token）</th><th class="c">超管</th></tr>
+      <tr><td>查看概览 / 明细</td><td class="c tick">✔</td><td class="c tick">✔ 只读·按开关裁剪</td><td class="c tick">✔</td></tr>
+      <tr><td>生成 / 撤销分享链接</td><td class="c tick">✔</td><td class="c cross">✘</td><td class="c tick">✔</td></tr>
+      <tr><td>查看金额字段</td><td class="c tick">✔</td><td class="c cross">✘ 脱敏（见 <a class="inline" href="#sb">附录 A</a>）</td><td class="c tick">✔</td></tr>
+      <tr><td>配置 TTL / 汇总时刻</td><td class="c cross">✘</td><td class="c cross">✘</td><td class="c tick">✔</td></tr>
+    </table>
+    <div class="callout rule">权限位<b>沿用</b> <code>&lt;PERM_CODE&gt;</code>，不新增。公开页无任何登录态依赖，作用域一律从 token 派生（G5）。</div>
+
+    <!-- 3.2.3 业务流程图 —— 按「执行者」分层 -->
+    <h4 id="s323" style="font-size:15px;color:#1b3a70;margin-top:28px">3.2.3 业务流程图</h4>
+    <h5>数据管道流（系统自动）</h5>
+    <!-- .flow chain #2 -->
+    <div class="flow">
+      <span class="node">定时触发（UTC 00:30）</span><span class="arw">→</span>
+      <span class="node">拉取上游明细</span><span class="arw">→</span>
+      <span class="node">口径计算（G1–G4）</span><span class="arw">→</span>
+      <span class="node">写入快照</span><span class="arw">→</span>
+      <span class="node term">Data as of 更新</span>
+      <span class="arw">/</span>
+      <span class="node warnn">任一步失败 → 保留上一版快照并告警</span>
+    </div>
+    <h5>用户操作流</h5>
+    <div class="flow">
+      <span class="node">打开链接</span><span class="arw">→</span>
+      <span class="node">校验 token</span><span class="arw">→</span>
+      <span class="node term">有效 → 渲染只读报表</span>
+      <span class="arw">/</span>
+      <span class="node warnn">过期 / 撤销 / 不存在 → 统一失效页</span>
+      <span class="lbl">（不区分原因，避免枚举探测）</span>
+    </div>
+
+    <!-- 3.2.4 全局说明 -->
+    <h4 id="s324" style="font-size:15px;color:#1b3a70;margin-top:28px">3.2.4 全局说明</h4>
+    <h5>A. 全局口径规则（单一事实源，所有板块共用，禁止各板块各写公式）</h5>
+    <div class="callout rule">下列口径为全文<b>唯一事实源</b>；各模块<b>只引用 ID</b>（如「加权（G2）」）而不复述。改口径 = 改这里一行，全文引用自动生效。</div>
+    <table class="data">
+      <tr><th style="width:70px">ID</th><th style="width:120px">短名</th><th>规则</th></tr>
+      <tr><td>G1</td><td>互动定义</td><td>&lt;Engagements = Likes + Comments + Shares + Saves；Saves 在 DB 中名为 <code>collects</code>&gt;</td></tr>
+      <tr><td>G2</td><td>比率加权</td><td>所有比率一律 <b>Σ分子 ÷ Σ分母</b>，<b>不</b>取行平均；禁止复用历史的隐式比率字段</td></tr>
+      <tr><td>G3</td><td>除零</td><td>分母为 0 → 返回 <code>null</code>，前端渲染 <b>"—"</b>；不返回 0 / Infinity</td></tr>
+      <tr><td>G4</td><td>时区</td><td>全报表日期时间<b>固定 UTC（GMT+0）</b>，涉时区板块加角标；禁用浏览器本地时区</td></tr>
+      <tr><td>G5</td><td>作用域</td><td>公开页的组织与对象作用域<b>一律从 token 派生</b>，不接受 query 参数覆盖</td></tr>
+      <tr><td>G6</td><td>数据时效</td><td>所有板块 + 明细 + 导出读<b>同一快照</b>；同页任意两处同名指标数值必须相等</td></tr>
+    </table>
+
+    <h5>B. 分层 / 枚举定义</h5>
+    <table class="data">
+      <tr><th style="width:120px">枚举</th><th>取值</th><th style="width:34%">边界</th></tr>
+      <tr><td>规模分层</td><td><span class="pill nano">Nano</span> <span class="pill micro">Micro</span> <span class="pill mid">Mid</span> <span class="pill macro">Macro</span> <span class="pill mega">Mega</span></td><td>断点以本表为准，用单测钉死；边界值<b>含下不含上</b></td></tr>
+      <tr><td>条目类型</td><td><span class="pill m">Master</span> <span class="pill mir">Mirrored</span></td><td>Master = 主条目；Mirrored = 转载副本，参与总量不参与排名</td></tr>
+    </table>
+
+    <h5>C. 通用控件规范</h5>
+    <table class="data">
+      <tr><th style="width:110px">场景</th><th>规范</th></tr>
+      <tr><td>空态</td><td>板块内居中文案「&lt;No data yet&gt;」，不隐藏板块骨架（否则用户以为页面坏了）</td></tr>
+      <tr><td>加载</td><td>整页一个骨架屏；表格独立 loading；<b>任何 catch 分支必须复位 loading</b>（有永久转圈返工史）</td></tr>
+      <tr><td>异常</td><td>板块级降级：单板块失败只置该板块为错误态，不整页报错</td></tr>
+      <tr><td>除零</td><td>统一 "—"（G3），不显示 0 / NaN / Infinity</td></tr>
+      <tr><td>数据时效</td><td>页头展示 <code>Data as of &lt;UTC 时间&gt;</code>（G4、G6）</td></tr>
+    </table>
+
+    <!-- ================= 3.2.5 核心 ================= -->
+    <h4 id="s325" style="font-size:16px;color:#fff;background:linear-gradient(90deg,#132a56,#2a66e8);padding:12px 18px;border-radius:10px;margin-top:34px">★ 3.2.5 需求、功能、交互说明（核心）</h4>
+
+    <!-- ---------- P0 ---------- -->
+    <div class="screen" id="p0">
+      <h4 class="screen-title">P0 · 入口</h4>
       <div class="screen-body">
-        <div class="spec field">
-          <span class="spec-label">① 字段 / 数据来源</span>
-          <table class="data">
-            <tr><th style="width:180px">字段</th><th>说明 / 计算</th><th style="width:170px">数据来源</th></tr>
-            <tr><td>Total Views</td><td>对应指标求和 (G1)；按所选平台取值</td><td>快照聚合</td></tr>
-            <tr><td>Engagement Rate %</td><td>ΣEng ÷ ΣViews × 100（加权 G2）；除零 → "—" (G3)</td><td>计算</td></tr>
+        <p class="screen-desc">位置：&lt;宿主页面&gt;顶部 Tab 栏 <b>&lt;Tab 名&gt;</b>（与 &lt;兄弟 Tab&gt; 并列）。进入后默认落在<b>概览</b>子 Tab。</p>
+
+        <!-- ===== 组件示例 A：顶栏 + KPI 卡 + 筛选 chip + 指标网格 + 右侧锚点栏 ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 入口顶栏与概览首屏<code style="margin-left:8px;font-size:11px">#entry-header</code></span>
+          <div class="mock">
+            <!-- 提示：marker 有 -11px 外溢，.mock 的 padding 已预留；不要把 marker 贴到 .mock 边缘 -->
+            <div class="mock-row">
+              <span class="anno"><span class="mk">1</span><span class="mtab active">概览</span> <span class="mtab">明细</span></span>
+              <span style="flex:1"></span>
+              <span class="anno"><span class="mk">2</span><span class="mbtn">Share</span></span>
+              <span class="anno"><span class="mk">3</span><span class="mbtn ai">AI Summary</span></span>
+            </div>
+            <div class="mock-cols">
+              <div class="mock-main">
+                <div class="mcard-row">
+                  <div class="anno mcard"><span class="mk">4</span>
+                    <div class="mc-label">&lt;KPI 1&gt;</div>
+                    <div class="mc-val">128 <small>项</small></div>
+                    <span class="anno mc-date"><span class="mk">5</span>12 Jun – 20 Jun 26 · UTC</span>
+                  </div>
+                  <div class="mcard">
+                    <div class="mc-label">&lt;KPI 2&gt;</div>
+                    <div class="mc-val">1.10M</div>
+                  </div>
+                  <div class="mcard">
+                    <div class="mc-label">&lt;KPI 3&gt;</div>
+                    <div class="mc-val" style="color:#c0c7d3">—</div>
+                  </div>
+                </div>
+                <div class="mtitle">Performance</div>
+                <span class="anno mchips"><span class="mk">6</span>
+                  <span class="mchip active">All</span><span class="mchip">&lt;渠道 A&gt;</span><span class="mchip">&lt;渠道 B&gt;</span><span class="mchip new">&lt;渠道 C&gt;</span>
+                </span>
+                <div class="anno" style="margin-top:10px"><span class="mk">7</span>
+                  <div class="mgrid">
+                    <div class="mmetric"><div class="l">Total Views</div><div class="v">1.89M</div></div>
+                    <div class="mmetric"><div class="l">Total Engagements</div><div class="v">114.9k</div></div>
+                    <div class="mmetric rate"><div class="l">Engagement Rate %</div><div class="v">6.1%</div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="anno mock-side"><span class="mk">8</span>
+                <div class="manchor active">Performance</div>
+                <div class="manchor">Breakdown</div>
+                <div class="manchor">Leaderboard</div>
+                <div class="manchor">Timeline</div>
+                <div class="manchor">Top Content</div>
+              </div>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:190px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>子 Tab 切换器（概览 / 明细）</td><td>点击切换两大视图，当前项高亮</td><td>默认进概览；前端路由，无数据依赖</td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>Share 按钮</td><td>点击 → 打开分享弹窗</td><td>无快照时置灰禁用；token 由后端 <code>crypto/rand</code> 生成</td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>AI Summary 按钮</td><td>点击 → 触发生成，按钮进入 loading</td><td>状态机见本页 <b style="color:var(--purple)">③</b>；生成中禁止重复点击</td></tr>
+            <tr><td class="c"><span class="nbadge">4</span></td><td>KPI 卡组</td><td>静态；hover ⓘ 看口径</td><td>快照聚合（G6）；空值 "—"（G3）</td></tr>
+            <tr><td class="c"><span class="nbadge">5</span></td><td>日期范围角标</td><td>静态</td><td>取快照区间，固定 UTC（G4）</td></tr>
+            <tr><td class="c"><span class="nbadge">6</span></td><td>渠道筛选 chip（单选）<span class="pill new">本版新增</span></td><td>点某 chip → 下方指标按该渠道重取，页码重置</td><td>All = 全渠道汇总；渠道值归一 <code>LOWER(TRIM)</code>（大小写混存是已知坑）</td></tr>
+            <tr><td class="c"><span class="nbadge">7</span></td><td>Performance 指标网格</td><td>随 chip 刷新</td><td>求和（G1）；比率加权（G2）；除零 "—"（G3）</td></tr>
+            <tr><td class="c"><span class="nbadge">8</span></td><td>右侧锚点导航</td><td>点击滚动到对应板块，滚动时高亮当前项</td><td><b>纯前端</b>；顺序 = 板块渲染顺序，写死不可配</td></tr>
           </table>
         </div>
-        <div class="spec cond">
-          <span class="spec-label">② 前置 · 排序 · 刷新</span>
-          <p style="margin:6px 0">前置：已登录且该 campaign 有 ≥1 快照。排序：—。刷新：读凌晨物化快照，页面无实时重采（数据固化）。</p>
+
+        <div class="spec field">
+          <span class="spec-label">① 字段、字段说明、数据来源</span>
+          <div class="module">
+            <h5>M1 · 顶栏与 KPI 卡</h5>
+            <table class="data">
+              <tr><th style="width:180px">字段</th><th>说明（含格式）</th><th style="width:170px">数据来源</th></tr>
+              <tr><td>&lt;KPI 1&gt;</td><td>整数，千分位；&lt;定义一句话&gt;</td><td>快照聚合（G6）</td></tr>
+              <tr><td>&lt;KPI 2&gt;</td><td>整数，≥1k 缩写为 <code>1.1M</code> / <code>21.5k</code></td><td>快照聚合</td></tr>
+              <tr><td>Engagement Rate %</td><td>ΣEngagements ÷ ΣViews × 100，保留 1 位小数（G2）；除零 → "—"（G3）</td><td>计算（不取库中现成字段）</td></tr>
+              <tr><td>Data as of</td><td><code>YYYY-MM-DD HH:mm UTC</code>（G4）</td><td>快照元数据</td></tr>
+            </table>
+          </div>
         </div>
+
+        <div class="spec cond">
+          <span class="spec-label">② 前置条件、排序机制、刷新机制</span>
+          <table class="data">
+            <tr><th style="width:33%">前置条件</th><th style="width:34%">排序机制</th><th>刷新机制</th></tr>
+            <tr>
+              <td>1. 用户已登录且具备 <code>&lt;PERM_CODE&gt;</code> 权限；<br>2. 该对象已生成至少一份快照，否则整页空态；<br>3. 渠道筛选值必须命中白名单枚举，非法值一律回落 All（防注入）。</td>
+              <td>1. 板块顺序固定，= 右侧锚点顺序；<br>2. KPI 卡顺序写死不可配；<br>3. 列表默认按主指标降序。</td>
+              <td>1. 进入页面自动加载概览复合接口（一次下发全部板块）；<br>2. 切换 chip 只重取受影响板块，<b>并重置页码</b>；<br>3. 页面不做实时轮询——数据每日物化一次（G6）。</td>
+            </tr>
+          </table>
+        </div>
+
         <div class="spec state">
           <span class="spec-label">③ 状态流转</span>
           <table class="data">
-            <tr><th>来源态</th><th>触发 / 条件</th><th>目标态</th></tr>
-            <tr><td>无快照</td><td>凌晨调度物化成功</td><td>有数据（可分享 / 可导出）</td></tr>
+            <tr><th style="width:150px">来源态</th><th style="width:34%">触发 / 条件</th><th>目标态</th></tr>
+            <tr><td>空态（无快照）</td><td>凌晨调度物化成功</td><td>有数据（可分享 / 可导出）</td></tr>
+            <tr><td>加载中</td><td>接口 200 且非空</td><td>有数据</td></tr>
+            <tr><td>加载中</td><td>接口非 200 / 超时</td><td>失败态（板块级降级，非整页）</td></tr>
+            <tr><td>失败态</td><td>点击「重试」</td><td>加载中</td></tr>
+            <tr><td>有数据</td><td>快照 TTL 到期</td><td>过期态（顶部条提示，内容仍可读）</td></tr>
           </table>
+          <div class="diagram">
+          <svg viewBox="0 0 860 200" width="860" height="200" xmlns="http://www.w3.org/2000/svg" font-family="sans-serif">
+            <defs><marker id="p0a" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#94a3b8"/></marker></defs>
+            <rect x="20" y="80" width="120" height="40" rx="8" fill="#eef2f7" stroke="#64748b"/>
+            <text x="80" y="105" text-anchor="middle" font-size="12.5" fill="#475569">空态</text>
+            <rect x="220" y="80" width="120" height="40" rx="8" fill="#faf5ff" stroke="#7c5cd6"/>
+            <text x="280" y="105" text-anchor="middle" font-size="12.5" fill="#5a3fb0">加载中（骨架）</text>
+            <rect x="420" y="20" width="140" height="40" rx="8" fill="#eef7f2" stroke="#1f9d55"/>
+            <text x="490" y="45" text-anchor="middle" font-size="12.5" fill="#166c3c">有数据</text>
+            <rect x="420" y="140" width="140" height="40" rx="8" fill="#fdeae8" stroke="#d84c4c"/>
+            <text x="490" y="165" text-anchor="middle" font-size="12.5" fill="#a83232">失败（板块降级）</text>
+            <rect x="650" y="20" width="140" height="40" rx="8" fill="#fdf6ec" stroke="#e2802b"/>
+            <text x="720" y="45" text-anchor="middle" font-size="12.5" fill="#9a5b16">过期（只读）</text>
+            <path d="M140,100 L216,100" stroke="#94a3b8" fill="none" marker-end="url(#p0a)"/>
+            <text x="178" y="92" text-anchor="middle" font-size="10" fill="#8592a6">首次进入</text>
+            <path d="M340,92 L416,52" stroke="#94a3b8" fill="none" marker-end="url(#p0a)"/>
+            <text x="378" y="62" text-anchor="middle" font-size="10" fill="#8592a6">200 且非空</text>
+            <path d="M340,108 L416,152" stroke="#94a3b8" fill="none" marker-end="url(#p0a)"/>
+            <text x="378" y="146" text-anchor="middle" font-size="10" fill="#8592a6">非 200 / 超时</text>
+            <path d="M418,148 L344,114" stroke="#94a3b8" fill="none" stroke-dasharray="4 3" marker-end="url(#p0a)"/>
+            <text x="378" y="182" text-anchor="middle" font-size="10" fill="#8592a6">点击重试（必须复位 loading）</text>
+            <path d="M560,40 L646,40" stroke="#94a3b8" fill="none" marker-end="url(#p0a)"/>
+            <text x="603" y="32" text-anchor="middle" font-size="10" fill="#8592a6">TTL 到期</text>
+          </svg>
+          </div>
+          <p style="font-size:12.5px;color:var(--muted)">实线 = 主转移；虚线 = 重试 / 回退边。任一 catch 分支<b>必须</b>复位 loading，否则会永久转圈。</p>
         </div>
+
         <div class="spec inter">
-          <span class="spec-label">④ 交互（正常 + 异常）</span>
+          <span class="spec-label">④ 交互操作（正常 + 异常）</span>
           <ol class="inter-list">
-            <li><span class="marker">1</span><span class="tag normal">正常</span>点击平台 chip → 指标卡按该平台重取。</li>
-            <li><span class="marker err">2</span><span class="tag err">异常</span>该平台无数据 → 卡片显示 "—" (G3)，不报错、不空屏。</li>
+            <li><span class="marker">1</span><span class="tag normal">正常</span>点击 <b>&lt;Tab 名&gt;</b> → 加载概览页（P1）；沿用现有路由，不新开窗口。</li>
+            <li><span class="marker">2</span><span class="tag normal">正常</span>点击渠道 chip → 指标网格按该渠道重取，页码重置为 1。</li>
+            <li><span class="marker">3</span><span class="tag normal">正常</span>点击右侧锚点 → 平滑滚动到对应板块并高亮。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>无 <code>&lt;PERM_CODE&gt;</code> 权限 → Tab 不可见（<b>Tab 级门控</b>，非进入后再报错）。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>该渠道无数据 → 卡片显示 "—"（G3），不报错、不空屏。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>复合接口超时 → 各板块独立进入失败态并给「重试」，不整页白屏。</li>
           </ol>
         </div>
       </div>
     </div>
 
-    <!-- ============ 四 变更点 (spec the delta; Impact column re-scopes as things churn) ============ -->
-    <h2 class="sec" id="s4">四、本版变更点（相对 v1.0）</h2>
-    <div class="callout info">仅列<b>需要改动</b>的项；未列出的沿用 v1.0。</div>
+    <!-- ---------- P1 ---------- -->
+    <div class="screen" id="p1">
+      <h4 class="screen-title">P1 · 概览页</h4>
+      <div class="screen-body">
+        <p class="screen-desc">概览页由 5 个板块纵向排列：<b>排行榜 / 分层拆解 / 时间轴 / 优质内容 / 明细列表</b>。每个板块一个 <code>.anno-wrap</code>，标号在各自块内从 1 重新起算。</p>
+
+        <!-- ===== 组件示例 B：排行榜（.mlb-*）+ 维度切换器（.mseg） ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 排行榜（Leaderboard）<code style="margin-left:8px;font-size:11px">#overview-leaderboard</code></span>
+          <div class="mock">
+            <div class="mtitle"><span class="anno"><span class="mk">1</span>Leaderboard</span><span class="minfo">i</span></div>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+              <span class="anno mseg"><span class="mk">2</span><span class="active">Views</span><span>Engagements</span><span>View Rate</span><span>Engagement Rate</span></span>
+            </div>
+            <div class="anno" style="display:block"><span class="mk">3</span>
+              <div class="mlb-row"><div class="mlb-av"><span class="mlb-crown">👑</span></div><div class="mlb-bar"><div class="mlb-fill" style="width:98%;background:#9ecbf3"></div></div><div class="anno mlb-val"><span class="mk">4</span>98.0</div></div>
+              <div class="mlb-row"><div class="mlb-av"></div><div class="mlb-bar"><div class="mlb-fill" style="width:95%;background:#6ba9e6"></div></div><div class="mlb-val">95.0</div></div>
+              <div class="mlb-row"><div class="mlb-av"></div><div class="mlb-bar"><div class="mlb-fill" style="width:88%;background:#5a90d8"></div></div><div class="mlb-val">88.0</div></div>
+              <div class="mlb-row"><div class="mlb-av"></div><div class="mlb-bar"><div class="mlb-fill" style="width:85%;background:#3f6fd0"></div></div><div class="mlb-val">85.0</div></div>
+              <div class="mlb-row"><div class="mlb-av"></div><div class="mlb-bar"><div class="mlb-fill" style="width:82%;background:#1e3a8a"></div></div><div class="mlb-val">82.0</div></div>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:170px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>板块标题 + 口径 ⓘ</td><td>hover ⓘ 显示口径全文</td><td>口径文案：「&lt;仅统计主条目，转载副本不参与排名，以保证可比性&gt;」→ 范围 <b>仅 Master</b></td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>维度切换器（4 选 1）</td><td>点击切维度，榜单整体重排</td><td>默认 Views；降序取 Top 10，不足 10 条则全部展示</td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>排名条（头像 + 条形 + #1 皇冠）</td><td>静态；点击进入该主体详情</td><td>条长 = 相对第一名比例；<b>不</b>按绝对值缩放（否则长尾全成一条线）</td></tr>
+            <tr><td class="c"><span class="nbadge">4</span></td><td>维度数值（条末）</td><td>随维度切换变化</td><td>比率维度加权（G2）；分母为 0 的主体置于末位并显示 "—"（G3）</td></tr>
+          </table>
+        </div>
+
+        <!-- ===== 组件示例 C：分层拆解矩阵（.mbk）—— 含表格内 marker（td .mk 覆写） ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 分层拆解（Breakdown）<code style="margin-left:8px;font-size:11px">#overview-breakdown</code></span>
+          <div class="mock">
+            <div class="mtitle"><span class="anno"><span class="mk">1</span>Breakdown</span><span class="minfo">i</span></div>
+            <span class="anno mchips"><span class="mk">2</span>
+              <span class="mchip active">&lt;渠道 A&gt;</span><span class="mchip">&lt;渠道 B&gt;</span><span class="mchip">&lt;渠道 C&gt;</span>
+            </span>
+            <div class="anno" style="margin-top:12px"><span class="mk">3</span>
+              <!-- 宽表用行内 overflow shim 包一层，不新增 class -->
+              <div style="overflow-x:auto;padding-top:2px">
+              <table class="mbk">
+                <tr><th>分层</th><th>Nano</th><th>Micro</th><th>Mid</th><th>Macro</th><th>Mega</th></tr>
+                <tr><td>主体数</td><td class="val">2</td><td class="val">1</td><td class="val">1</td><td class="val">1</td><td class="val">1</td></tr>
+                <tr><td><span class="anno"><span class="mk">4</span>条目数</span></td><td class="val">1</td><td class="val">2</td><td class="val">2</td><td class="val">2</td><td class="val">2</td></tr>
+                <tr><td>Views</td><td class="val">21.5k</td><td class="val">42.4k</td><td class="val">181.5k</td><td class="val">549.2k</td><td class="val">1.10M</td></tr>
+                <tr><td>Engagements</td><td class="val">1.31k</td><td class="val">2.59k</td><td class="val">11.1k</td><td class="val">33.2k</td><td class="val">66.8k</td></tr>
+                <tr><td><span class="anno"><span class="mk">5</span>Engagement Rate</span></td><td class="val">3.0%</td><td class="val">6.1%</td><td class="val">6.1%</td><td class="val">6.0%</td><td class="val">6.2%</td></tr>
+              </table>
+              </div>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:170px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>板块标题 + 口径 ⓘ</td><td>hover ⓘ 显示口径</td><td>按规模分层评估各量级贡献</td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>渠道 chip（单选，<b>无 All</b>）</td><td>点击切渠道，整表重取</td><td>本板块<b>必须分渠道</b>——跨渠道指标不可加总；渠道值归一 <code>LOWER(TRIM)</code></td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>分层列（Nano…Mega）</td><td>横向滚动</td><td>5 层断点见 <a class="inline" href="#s324">§3.2.4B</a>；<b>空分层仍显示列</b>（值为 0 / "—"），不做列压缩</td></tr>
+            <tr><td class="c"><span class="nbadge">4</span></td><td>计数类指标行</td><td>静态</td><td>该渠道该分层内 distinct 主体数 / 条目总数；范围 <b>Master + Mirrored</b></td></tr>
+            <tr><td class="c"><span class="nbadge">5</span></td><td>比率类指标行</td><td>静态</td><td>加权（G2）：ER% = Σengagements ÷ Σviews；<b>禁止</b>对各分层的 ER 再求平均</td></tr>
+          </table>
+        </div>
+
+        <!-- ===== 组件示例 D：横向时间轴（.mtl-*） ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 时间轴（Timeline）<code style="margin-left:8px;font-size:11px">#overview-timeline</code></span>
+          <div class="mock">
+            <div class="mtitle"><span class="anno"><span class="mk">1</span>Timeline</span><span class="minfo">i</span></div>
+            <div class="anno"><span class="mk">2</span>
+              <div style="overflow-x:auto;padding-top:2px">
+              <div class="mtl">
+                <div class="mtl-node" style="left:8%">
+                  <div class="anno"><span class="mk">3</span><div class="mtl-av"></div></div>
+                  <span class="anno" style="position:absolute;top:-4px;left:24px"><span class="mk">4</span><span style="font-size:9px;background:#eef2f8;border-radius:6px;padding:1px 5px;color:#7a8698">×2</span></span>
+                  <div class="mtl-date">12 Jun 26</div>
+                </div>
+                <div class="mtl-node" style="left:36%"><div class="mtl-av"></div><div class="mtl-date">14 Jun 26</div></div>
+                <div class="mtl-node" style="left:64%"><div class="mtl-av"></div><div class="mtl-date">18 Jun 26</div></div>
+                <div class="mtl-node" style="left:90%"><div class="mtl-av"></div><div class="mtl-date">20 Jun 26</div></div>
+              </div>
+              </div>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:170px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>板块标题 + 口径 ⓘ</td><td>hover ⓘ 显示口径</td><td>只呈现主条目的发布节奏 → 范围 <b>仅 Master</b></td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>日期轴（横向）</td><td>横向滚动；轴宽随跨度自适应，最小 520px</td><td>按 UTC / GMT+0 分桶（G4），角标「All times in UTC (GMT+0)」；分桶由后端完成</td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>节点（头像）</td><td>hover 看当日明细；点击进入详情</td><td>节点落在该主体的发布日；无发布日不占位</td></tr>
+            <tr><td class="c"><span class="nbadge">4</span></td><td>计数气泡（×N）</td><td>静态</td><td>同一主体当日多条 → ×N；同日多主体重叠 → 聚合气泡，hover 展开</td></tr>
+          </table>
+        </div>
+
+        <!-- ===== 组件示例 E：内容卡横滑（.mtc-*，含 .mtc-meta .mk 偏移覆写） ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 优质内容（Top Content）<code style="margin-left:8px;font-size:11px">#overview-top-content</code></span>
+          <div class="mock">
+            <div class="mtitle"><span class="anno"><span class="mk">1</span>Top Content</span><span class="minfo">i</span></div>
+            <div class="anno"><span class="mk">2</span>
+              <div class="mtc-row">
+                <div class="mtc-card"><div class="mtc-cover"><div class="mtc-ico">▶</div></div><div class="anno mtc-meta"><span class="mk">3</span>@&lt;handle-1&gt;<br>138.3k views · 4.3k likes<br>26 Jun 26</div></div>
+                <div class="mtc-card"><div class="mtc-cover"><div class="mtc-ico">▶</div></div><div class="mtc-meta">@&lt;handle-2&gt;<br>96.1k views · 3.1k likes<br>24 Jun 26</div></div>
+                <div class="mtc-card"><div class="mtc-cover"><div class="mtc-ico">▶</div></div><div class="mtc-meta">@&lt;handle-3&gt;<br>72.4k views · 2.6k likes<br>22 Jun 26</div></div>
+                <div class="mtc-card"><div class="mtc-cover"><div class="mtc-ico">▶</div></div><div class="mtc-meta">@&lt;handle-4&gt;<br>58.0k views · 1.9k likes<br>20 Jun 26</div></div>
+                <div class="mtc-card"><div class="mtc-cover"><div class="mtc-ico">▶</div></div><div class="mtc-meta">@&lt;handle-5&gt;<br>41.2k views · 1.3k likes<br>18 Jun 26</div></div>
+              </div>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:170px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>板块标题 + 口径 ⓘ</td><td>hover ⓘ 显示口径</td><td>按单条 Views 降序取前 N（N 由 <a class="inline" href="#s5">§五-2</a> 默认值决定）</td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>内容卡横滑区</td><td><b>横向滚动</b>；点击卡片新窗打开原始链接</td><td>范围 <b>Master + Mirrored</b>（转载副本可单独入榜）</td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>卡片信息条（handle / 指标 / 日期）</td><td>hover 卡片浮现完整标题文案</td><td>封面取条目 <code>thumbnail</code>，缺失时用<b>纯 CSS 渐变占位</b>（不引外链图片）；日期 UTC（G4）</td></tr>
+          </table>
+        </div>
+
+        <!-- ===== 组件示例 F：明细列表（.mtbl / .mava / .mhandle / pill） ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 明细列表（Detail Table）<code style="margin-left:8px;font-size:11px">#overview-table</code></span>
+          <div class="mock">
+            <div class="mock-row">
+              <span class="anno"><span class="mk">1</span><span class="mbtn">Geo ▾</span></span>
+              <span class="mbtn">分层 ▾</span>
+              <span style="flex:1"></span>
+              <span class="anno"><span class="mk">2</span><span class="mbtn">⤓ Download</span></span>
+            </div>
+            <div style="overflow-x:auto">
+            <table class="mtbl">
+              <tr><th>主体</th><th>渠道</th><th>条目</th><th>Views</th><th>Engagements</th><th>ER %</th></tr>
+              <tr>
+                <td><span class="anno"><span class="mk">3</span><span class="mava"></span></span>&lt;Name One&gt; <span class="mhandle">@&lt;handle-1&gt;</span></td>
+                <td>&lt;渠道 A&gt;</td>
+                <td><span class="anno"><span class="mk">4</span><span class="pill m">Master 1</span></span> <span class="pill mir">Mirrored 1</span></td>
+                <td>101.0K</td><td>28.3K</td><td>24.1%</td>
+              </tr>
+              <tr>
+                <td><span class="mava"></span>&lt;Name Two&gt; <span class="mhandle">@&lt;handle-2&gt;</span></td>
+                <td>&lt;渠道 B&gt;</td>
+                <td><span class="pill m">Master 1</span></td>
+                <td>96.1K</td><td>19.4K</td><td>20.2%</td>
+              </tr>
+              <tr>
+                <td><span class="mava"></span>&lt;Name Three&gt; <span class="mhandle">@&lt;handle-3&gt;</span></td>
+                <td>&lt;渠道 A&gt;</td>
+                <td><span class="pill m">Master 2</span></td>
+                <td>72.4K</td><td>—</td><td><span class="anno"><span class="mk">5</span>—</span></td>
+              </tr>
+            </table>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:170px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>Geo 筛选下拉 <span class="pill new">本版新增</span></td><td>多选；变更后<b>重置页码</b>并重取</td><td>取值来自主体档案的国家字段；<b>列白名单</b>，非法值不透传 SQL（防注入）</td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>Download 导出</td><td>点击 → 前端生成 xlsx 并下载</td><td><b>后端一次性下发全量数据，前端生成文件</b>——不生成后端文件（无 CDN）、不依赖分页接口</td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>主体单元格（头像 + 名称 + handle）</td><td>点击进入主体详情</td><td>头像缺失用灰底占位圆，<b>不</b>请求外链</td></tr>
+            <tr><td class="c"><span class="nbadge">4</span></td><td>条目徽标（Master / Mirrored 计数）<span class="pill new">本版改造</span></td><td>hover 出预览卡；点击开抽屉（<a class="inline" href="#p1d">P1.1</a>）</td><td>两类分别计数，不合并展示；0 条时该徽标不渲染</td></tr>
+            <tr><td class="c"><span class="nbadge">5</span></td><td>比率列空值</td><td>静态</td><td>分母为 0 → "—"（G3）；<b>不</b>显示 0.0%</td></tr>
+          </table>
+        </div>
+
+        <div class="spec field">
+          <span class="spec-label">① 字段、字段说明、数据来源</span>
+          <div class="module">
+            <h5>M2 · 排行榜 <span class="pill new">交互改造</span></h5>
+            <table class="data">
+              <tr><th style="width:180px">字段</th><th>说明（含格式）</th><th style="width:170px">数据来源</th></tr>
+              <tr><td>Rank</td><td>1…10，第 1 名加皇冠</td><td>前端按维度值降序生成</td></tr>
+              <tr><td>维度值</td><td>随切换器变化；比率保留 1 位小数</td><td>快照聚合（仅 Master）</td></tr>
+            </table>
+          </div>
+          <div class="module">
+            <h5>M3 · 明细列表</h5>
+            <table class="data">
+              <tr><th style="width:180px">字段</th><th>说明（含格式）</th><th style="width:170px">数据来源</th></tr>
+              <tr><td>主体</td><td>名称 + <code>@handle</code>，名称超长省略号</td><td>主体档案</td></tr>
+              <tr><td>条目徽标</td><td><code>Master {n}</code> / <code>Mirrored {n}</code>，0 不渲染</td><td>条目表计数</td></tr>
+              <tr><td>ER %</td><td>ΣEngagements ÷ ΣViews × 100（G2）；除零 "—"（G3）</td><td>计算</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="spec cond">
+          <span class="spec-label">② 前置条件、排序机制、刷新机制</span>
+          <table class="data">
+            <tr><th style="width:33%">前置条件</th><th style="width:34%">排序机制</th><th>刷新机制</th></tr>
+            <tr>
+              <td>1. 已通过 P0 门控；<br>2. 快照存在且未损坏；<br>3. Geo / 分层筛选值必须命中枚举白名单，<b>非法值回落全选</b>而非报错。</td>
+              <td>1. 排行榜按当前维度降序 Top 10；<br>2. 明细列表默认按 Views 降序，点表头可改；<br>3. 排序字段<b>仅限白名单列</b>，防 SQL 注入；<br>4. 并列时以主体 ID 升序作稳定次序。</td>
+              <td>1. 板块各自独立请求，互不阻塞；<br>2. <b>任一筛选变更 → 页码重置为 1</b>；<br>3. 列表用请求序号（seq）守卫，晚到的旧响应直接丢弃。</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="spec state">
+          <span class="spec-label">③ 状态流转</span>
+          <h5>板块加载状态</h5>
+          <div class="flow">
+            <span class="node">loading 骨架</span><span class="arw">→</span>
+            <span class="node term">有数据</span><span class="arw">/</span>
+            <span class="node">空态「No results found」（保留筛选栏）</span><span class="arw">/</span>
+            <span class="node warnn">错误态 → 重试</span>
+          </div>
+          <table class="data">
+            <tr><th style="width:150px">来源态</th><th style="width:34%">触发 / 条件</th><th>目标态</th></tr>
+            <tr><td>列表加载中</td><td>返回条数 &gt; 0</td><td>有数据</td></tr>
+            <tr><td>列表加载中</td><td>返回条数 = 0</td><td>空态「&lt;No results found&gt;」（保留筛选栏）</td></tr>
+            <tr><td>有数据</td><td>修改筛选</td><td>列表加载中（页码重置）</td></tr>
+            <tr><td>任意态</td><td>请求异常</td><td>板块错误态 + 「重试」</td></tr>
+          </table>
+        </div>
+
+        <div class="spec inter">
+          <span class="spec-label">④ 交互操作（正常 + 异常）</span>
+          <ol class="inter-list">
+            <li><span class="marker">1</span><span class="tag normal">正常</span>点击维度切换器 → 排行榜重排，条长按新维度重算。</li>
+            <li><span class="marker">2</span><span class="tag normal">正常</span>hover 条目徽标 → 出预览卡；点击 → 打开明细抽屉（<a class="inline" href="#p1d">P1.1</a>）。</li>
+            <li><span class="marker">3</span><span class="tag normal">正常</span>点击 <b>Download</b> → 前端用当前筛选后的全量数据生成 xlsx 并下载。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>筛选后结果为空 → 空态文案，<b>保留</b>筛选栏（否则用户无法撤回筛选）。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>导出时数据量超阈值 → 提示「数据量过大，请缩小筛选范围」，不静默截断。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>快速连点切换器 → 用 seq 守卫丢弃旧响应，避免榜单闪回。</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- P1.1 ---------- -->
+    <div class="screen" id="p1d">
+      <h4 class="screen-title">P1.1 · 明细抽屉（条目徽标交互）</h4>
+      <div class="screen-body">
+        <p class="screen-desc">条目徽标的三层交互：<b>hover</b> 出预览卡 → <b>点击</b>打开右侧抽屉 → 抽屉内 <b>hover Views</b> 出近 7 条迷你趋势。抽屉内所有指标均为<b>快照固化值</b>，本页不做实时刷新。</p>
+
+        <!-- ===== 组件示例 G：预览卡（.popcard/.pc-*）+ 抽屉（.drawer/.dk-av/.dcover/.mtile）+ 迷你图（.minichart） ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 徽标交互（① hover 预览 · ② 点击抽屉 · ③ Views 迷你图）</span>
+          <div class="mock">
+            <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:center">
+              <div class="anno" style="align-self:center"><span class="mk">1</span><span class="pill m">Master 1</span> <span class="pill mir">Mirrored 1</span></div>
+              <span style="color:#9aa6b8;font-weight:700">— hover →</span>
+              <div class="anno popcard"><span class="mk">2</span>
+                <div class="pc-head"><span><span class="pill m">Master 1</span> &lt;渠道 A&gt;</span><span>🕐 2026/06/18 20:30</span></div>
+                <div class="pc-url"><span>🔗 &lt;example.com/p/2-ma…&gt;</span><span>📋</span></div>
+                <div class="pc-cover"></div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-top:18px">
+              <div class="anno drawer"><span class="mk">3</span>
+                <div class="drawer-head"><span>Detail</span><span style="color:#8592a6;font-weight:400">✕</span></div>
+                <div class="drawer-body">
+                  <div class="anno" style="display:flex;gap:8px;align-items:center;margin-bottom:10px"><span class="mk">4</span>
+                    <span class="dk-av"></span>
+                    <div><div style="font-weight:700;font-size:12px;color:#1f2b45">&lt;Name One&gt;</div><div style="font-size:10px;color:#8a96a8">@&lt;handle-1&gt;</div></div>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-bottom:10px">
+                    <div class="dcover"></div>
+                    <div style="font-size:10.5px;color:#66758c;flex:1">
+                      <div style="text-align:right"><span class="pill m">Master 1</span></div>
+                      <div style="font-weight:700;color:#8592a6;letter-spacing:.06em;margin:2px 0 3px">CAPTION</div>
+                      &lt;标题 / 正文摘要，超出 3 行省略…&gt;
+                      <div style="margin-top:8px;color:#8592a6">🕐 2026/06/18 20:30 UTC</div>
+                    </div>
+                  </div>
+                  <div class="anno" style="display:flex;justify-content:space-between;align-items:center;margin:8px 0 2px"><span class="mk">5</span>
+                    <span style="font-weight:800;font-size:11.5px;color:#54657f">Performance Metrics</span>
+                    <span style="font-size:10.5px;color:#b7c0cd;font-weight:600">↻ Refresh <span style="font-weight:400;font-style:italic">· 非本页操作</span></span>
+                  </div>
+                  <div class="metric-grid">
+                    <div class="anno mtile"><span class="mk">6</span><div class="l">Views ↑</div><div class="v">101.0K</div></div>
+                    <div class="mtile"><div class="l">Likes</div><div class="v">17.2K</div></div>
+                    <div class="mtile"><div class="l">Comments</div><div class="v">3.2K</div></div>
+                    <div class="mtile"><div class="l">Shares</div><div class="v">2.2K</div></div>
+                    <div class="mtile"><div class="l">Saves</div><div class="v">1.7K</div></div>
+                    <div class="mtile"><div class="l">Total Engagement</div><div class="v">28.3K</div></div>
+                    <div class="anno mtile ocr"><span class="mk">7</span><div class="l">&lt;OCR 指标 1&gt; 🖼</div><div class="v">86.9K</div></div>
+                    <div class="mtile ocr"><div class="l">&lt;OCR 指标 2&gt; 🖼</div><div class="v">32.5%</div></div>
+                    <div class="mtile ocr"><div class="l">&lt;OCR 指标 3&gt; 🖼</div><div class="v">21s</div></div>
+                  </div>
+                  <div class="anno" style="margin-top:10px"><span class="mk">8</span>
+                    <div style="font-weight:800;font-size:11px;color:#54657f;margin-bottom:4px">Attachments</div>
+                    <div style="font-size:10px;color:#8592a6;background:#f7f9fc;border:1px dashed #dbe0ea;border-radius:8px;padding:9px;text-align:center">&lt;No attachments available yet.&gt;</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="anno minichart"><span class="mk">9</span>
+                <div style="font-size:11px;color:#64748b;font-weight:600">Average Views (Last 7)：<b style="color:#1f2b45;font-size:13px">81.1K</b></div>
+                <div style="font-size:10px;color:#8592a6;margin-top:8px;font-weight:600">Last 7 Performance</div>
+                <div class="mc-bars">
+                  <i class="cur" style="height:44px"></i><i style="height:40px"></i><i style="height:37px"></i><i style="height:33px"></i><i style="height:29px"></i><i style="height:25px"></i><i style="height:22px"></i>
+                </div>
+                <div style="text-align:right;font-size:9px;color:#c0c7d3;font-weight:600;margin-top:2px">Avg 线</div>
+              </div>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:200px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>列表内条目徽标</td><td>hover 出预览卡；点击开抽屉</td><td>同 P1 明细列表的条目徽标（本页只讲交互，字段口径不重复）</td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>hover 预览卡（渠道 / 时间 / 链接 / 封面）</td><td>hover 300ms 后浮现；移出即收起</td><td>链接右侧 📋 一键复制，复制后 toast「已复制」</td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>右侧明细抽屉</td><td>点击徽标打开；✕ / ESC / 点遮罩关闭</td><td>宽 340px；抽屉打开时锁定背景滚动</td></tr>
+            <tr><td class="c"><span class="nbadge">4</span></td><td>主体信息行（头像 + 名称 + handle）</td><td>点击进入主体详情</td><td>主体档案；头像缺失用灰底占位</td></tr>
+            <tr><td class="c"><span class="nbadge">5</span></td><td>指标区标题 + Refresh 入口</td><td><b>置灰不可点</b></td><td>指标为快照固化值（G6）；刷新是上游模块的操作，本页只读</td></tr>
+            <tr><td class="c"><span class="nbadge">6</span></td><td>常规指标格</td><td>hover Views 出迷你趋势图</td><td>每日采集 → 快照聚合（G1）</td></tr>
+            <tr><td class="c"><span class="nbadge">7</span></td><td>OCR 来源指标格（橙色家族）</td><td>hover 显示「来自截图识别」</td><td><b>橙色 = 图片识别来源，可信度低于采集值</b>；识别失败 → "—"（G3），不回填 0</td></tr>
+            <tr><td class="c"><span class="nbadge">8</span></td><td>附件区</td><td>有附件时点击预览</td><td>无附件时显示虚线空态框，<b>不隐藏该区</b></td></tr>
+            <tr><td class="c"><span class="nbadge">9</span></td><td>迷你趋势图（近 7 条）</td><td>hover Views 数值浮现</td><td>深色柱 = 当前条目；不足 7 条按实际条数渲染，不补零</td></tr>
+          </table>
+          <div class="callout warn"><b>⚠ 占位说明：</b>上图封面 / 头像均为<b>纯 CSS 渐变占位</b>，不是设计稿指定的视觉；正式实现以设计稿为准。凡 mock 中属于占位而非已定行为的元素，都要像这样加一条 <code>.callout warn</code>。</div>
+        </div>
+
+        <div class="spec field">
+          <span class="spec-label">① 字段、字段说明、数据来源</span>
+          <div class="module">
+            <h5>M4 · 抽屉指标区</h5>
+            <table class="data">
+              <tr><th style="width:180px">字段</th><th>说明（含格式）</th><th style="width:190px">数据来源</th></tr>
+              <tr><td>Views / Likes / Comments / Shares / Saves</td><td>整数，≥1k 缩写</td><td>每日采集 → 快照（G6）</td></tr>
+              <tr><td>Total Engagement</td><td>= Likes + Comments + Shares + Saves（G1）</td><td>计算</td></tr>
+              <tr><td>&lt;OCR 指标 1–3&gt;</td><td>随截图上传而来，可能缺失</td><td><b>截图 OCR</b>；缺失 → "—"（G3）</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="spec cond">
+          <span class="spec-label">② 前置条件、排序机制、刷新机制</span>
+          <table class="data">
+            <tr><th style="width:33%">前置条件</th><th style="width:34%">排序机制</th><th>刷新机制</th></tr>
+            <tr>
+              <td>1. 该条目存在且已通过校验；<br>2. 抽屉数据随列表接口一次性下发，<b>不额外发请求</b>。</td>
+              <td>1. 指标格顺序写死（常规在前、OCR 在后）；<br>2. 迷你图按时间正序，最新在最左。</td>
+              <td>1. 打开即渲染，无二次加载；<br>2. 关闭再打开复用同一份快照数据；<br>3. 本页<b>不提供</b>刷新入口。</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="spec state">
+          <span class="spec-label">③ 状态流转</span>
+          <h5>抽屉自身状态</h5>
+          <div class="flow">
+            <span class="node">关闭</span><span class="arw">→</span>
+            <span class="node term">打开（滚动锁定）</span><span class="arw">→</span>
+            <span class="node">切换条目（内容替换，不重挂载）</span><span class="arw">→</span>
+            <span class="node">关闭（解除锁定）</span>
+          </div>
+          <table class="data">
+            <tr><th style="width:150px">来源态</th><th style="width:34%">触发 / 条件</th><th>目标态</th></tr>
+            <tr><td>关闭</td><td>点击条目徽标</td><td>打开（背景滚动锁定）</td></tr>
+            <tr><td>打开</td><td>✕ / ESC / 点遮罩</td><td>关闭（解除滚动锁定）</td></tr>
+            <tr><td>打开</td><td>切换到另一条目</td><td>打开（内容替换，不闪烁重挂载）</td></tr>
+          </table>
+        </div>
+
+        <div class="spec inter">
+          <span class="spec-label">④ 交互操作（正常 + 异常）</span>
+          <ol class="inter-list">
+            <li><span class="marker">1</span><span class="tag normal">正常</span>点击链接右侧 📋 → 复制原始链接，toast「已复制」。</li>
+            <li><span class="marker">2</span><span class="tag normal">正常</span>点击封面 → 新窗打开原始链接（<code>rel="noopener"</code>）。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>OCR 指标缺失 → 该格显示 "—"（G3），<b>不</b>回填 0，也不隐藏该格。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>原始链接已失效 → 点击后仍新窗打开，由目标站点自行提示（本产品不做可达性探测）。</li>
+          </ol>
+          <div class="dialog">
+            <div class="dt">复制链接</div>
+            <div class="db">链接将复制到剪贴板，是否继续？</div>
+            <div class="da"><span class="btn ghost">取消</span><span class="btn primary">确定</span></div>
+          </div>
+          <div class="dialog">
+            <div class="dt">撤销分享</div>
+            <div class="db">旧链接将<b>立即失效</b>，确定撤销？</div>
+            <div class="da"><span class="btn ghost">取消</span><span class="btn danger">撤销</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---------- P2 ---------- -->
+    <div class="screen" id="p2">
+      <h4 class="screen-title">P2 · 审批抽屉（写路径样板：状态徽标 + 表单 + 按钮）</h4>
+      <div class="screen-body">
+        <p class="screen-desc">目录里其余组件都是<b>只读</b>的（指标卡 / 排行榜 / 时间轴 / 表格）。凡是要落库的页面——审批队列、编辑表单、驳回弹窗——都从本页抄：<code>.drawer.wide</code>（<b>480px</b>，只读抽屉是 340px，见 <a class="inline" href="#p1d">P1.1</a>）+ <code>.mst</code> 状态徽标 + <code>.mfield / .msel / .mta / .mchk / .mcnt / .mreq</code> 表单控件 + <code>.btn</code> 按钮。<b>不要</b>为按钮或抽屉宽度另写内联样式——两份 PRD 各自发明一套就再也对不上了。</p>
+
+        <!-- ===== 组件示例 H：写路径（.drawer.wide / .mst / .mfield / .msel / .mta / .mcnt / .mchk / .mreq / .btn） ===== -->
+        <div class="anno-wrap">
+          <span class="anno-title">🖼 功能标注 · 审批抽屉（Write Path）<code style="margin-left:8px;font-size:11px">#review-drawer</code></span>
+          <div class="mock">
+            <div class="anno drawer wide"><span class="mk">1</span>
+              <div class="drawer-head"><span>&lt;审批标题&gt; · &lt;对象名&gt;</span><span style="color:#8592a6;font-weight:400">✕</span></div>
+              <div class="drawer-body">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+                  <span class="dk-av"></span>
+                  <div style="flex:1">
+                    <div style="font-weight:700;font-size:12px;color:#1f2b45">&lt;对象名&gt; <span class="mhandle">@&lt;handle&gt;</span></div>
+                    <div style="font-size:10px;color:#8a96a8">&lt;所属活动&gt; · 截止 2026-07-20 23:59</div>
+                  </div>
+                  <span class="anno"><span class="mk">2</span><span class="mst primary">&lt;待处理&gt;</span></span>
+                </div>
+
+                <div class="anno mfield"><span class="mk">3</span>
+                  <span class="l">&lt;只读字段名&gt;</span>
+                  <div class="v ro">&lt;由上游下发，本页不可改&gt;</div>
+                </div>
+
+                <div class="anno mfield"><span class="mk">4</span>
+                  <span class="l">&lt;审批结论&gt;<span class="mreq">*</span></span>
+                  <span class="msel">&lt;请选择&gt;</span>
+                </div>
+
+                <div class="anno mfield"><span class="mk">5</span>
+                  <span class="l">&lt;驳回原因&gt;<span class="mreq">*</span></span>
+                  <span class="mta">&lt;请填写具体原因，运营与达人两端都会看到…&gt;</span>
+                  <div class="anno mcnt"><span class="mk">6</span>0 / 500</div>
+                </div>
+
+                <div class="anno mfield"><span class="mk">7</span>
+                  <span class="l">&lt;通知范围&gt;</span>
+                  <div style="padding-top:2px">
+                    <span class="mchk on">&lt;通知对方&gt;</span>
+                    <span class="mchk">&lt;抄送负责人&gt;</span>
+                  </div>
+                </div>
+
+                <div class="anno mfield"><span class="mk">8</span>
+                  <span class="l">&lt;金额调整&gt;</span>
+                  <div class="v err">-120</div>
+                  <div class="mhint err">&lt;金额不能为负数&gt;</div>
+                </div>
+
+                <div style="display:flex;gap:0;justify-content:flex-end;align-items:center;margin-top:16px;border-top:1px solid #eef1f6;padding-top:12px">
+                  <span class="anno"><span class="mk">9</span><span class="btn ghost">&lt;取消&gt;</span></span>
+                  <span class="anno"><span class="mk">10</span><span class="btn danger">&lt;驳回&gt;</span></span>
+                  <span class="anno"><span class="mk">11</span><span class="btn primary">&lt;通过&gt;</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <table class="data" style="margin-top:14px">
+            <tr><th style="width:52px">标号</th><th style="width:190px">含义（元素）</th><th style="width:28%">交互</th><th>逻辑 / 数据来源</th></tr>
+            <tr><td class="c"><span class="nbadge">1</span></td><td>抽屉容器 <code>.drawer.wide</code></td><td>✕ / ESC 关闭；<b>有未保存输入时</b>二次确认</td><td>宽 <b>480px</b>（只读抽屉用 <code>.drawer</code> = 340px）。两个宽度是全部，<b>不要</b>写 <code>style="width:…"</code>，否则 mock 与本列文案会各说一个数</td></tr>
+            <tr><td class="c"><span class="nbadge">2</span></td><td>状态徽标 <code>.mst</code></td><td>静态</td><td>六个语义族，与 §3.2.3 状态机图的配色<b>一一对应</b>：<span class="mst neutral">&lt;未开始&gt;</span> <code>.neutral</code> · <span class="mst primary">&lt;待处理&gt;</span> <code>.primary</code> · <span class="mst loading">&lt;进行中&gt;</span> <code>.loading</code> · <span class="mst success">&lt;已完成&gt;</span> <code>.success</code> · <span class="mst error">&lt;已驳回&gt;</span> <code>.error</code> · <span class="mst warn">&lt;已逾期&gt;</span> <code>.warn</code>。类名按<b>语义</b>取，业务词写在徽标文字里，枚举值写 <code>&lt;code&gt;</code></td></tr>
+            <tr><td class="c"><span class="nbadge">3</span></td><td>只读字段 <code>.mfield &gt; .v.ro</code></td><td>不可编辑、不可聚焦</td><td>灰底 = 本页不负责写这个字段；<b>仍要展示</b>，隐藏会让人以为字段不存在</td></tr>
+            <tr><td class="c"><span class="nbadge">4</span></td><td>下拉选择 <code>.msel</code> + 必填星 <code>.mreq</code></td><td>点击展开；未选时提交按钮置灰</td><td>选项取自枚举白名单；未知值<b>不透传</b>，回落「其他」并打日志</td></tr>
+            <tr><td class="c"><span class="nbadge">5</span></td><td>多行文本 <code>.mta</code></td><td>可输入；失焦即校验</td><td>前后端<b>各校验一次</b>，长度口径写在这里而不是散落在两端代码里</td></tr>
+            <tr><td class="c"><span class="nbadge">6</span></td><td>字数计数 <code>.mcnt</code></td><td>随输入实时更新；超限加 <code>.over</code> 变红</td><td>格式固定 <code>已输入 / 上限</code>；<b>超限不截断输入</b>，只拦提交——静默截断会丢用户已写的内容</td></tr>
+            <tr><td class="c"><span class="nbadge">7</span></td><td>复选框 <code>.mchk</code> / 选中态 <code>.mchk.on</code></td><td>点击切换</td><td>默认值必须在此写死（本例「通知对方」默认勾选）；<b>不要</b>让实现方猜默认值</td></tr>
+            <tr><td class="c"><span class="nbadge">8</span></td><td>校验失败态 <code>.v.err</code> + <code>.mhint.err</code></td><td>失焦或提交时触发；修正后即时消除</td><td>错误文案<b>贴在字段下</b>，不用 toast——toast 会飘走，用户找不到是哪个字段错了</td></tr>
+            <tr><td class="c"><span class="nbadge">9</span></td><td>次要按钮 <code>.btn.ghost</code></td><td>点击关闭抽屉，丢弃输入（先二次确认）</td><td>三个按钮统一用 <code>.btn</code> 家族，<b>不内联样式</b></td></tr>
+            <tr><td class="c"><span class="nbadge">10</span></td><td>危险按钮 <code>.btn.danger</code></td><td>点击 → 二次确认对话框 → 提交</td><td>无写权限或非本人任务时<b>不渲染</b>（见 §3.2.2），而不是置灰</td></tr>
+            <tr><td class="c"><span class="nbadge">11</span></td><td>主按钮 <code>.btn.primary</code></td><td>必填项齐备前置灰；点击 → 二次确认 → 提交</td><td>提交带 <code>Idempotency-Key</code> + <code>version</code>；成功后<b>就地</b>更新来源列表行，不整表重取</td></tr>
+          </table>
+          <div class="callout info"><b>ℹ 复用说明：</b>以上 11 个标号覆盖了写路径的全部原语。新页面只需替换 <code>&lt;…&gt;</code> 占位文案与标号含义，<b>不新增 class</b>。若确实缺一种控件，先回 <code>references/design-system.md</code> 确认没有同义组件，再新增并同步该文件。</div>
+        </div>
+
+        <div class="spec field">
+          <span class="spec-label">① 字段、字段说明、数据来源</span>
+          <div class="module">
+            <h5>M5 · 审批表单</h5>
+            <table class="data">
+              <tr><th style="width:180px">字段</th><th>说明（含格式）</th><th style="width:190px">数据来源</th></tr>
+              <tr><td>&lt;审批结论&gt; <span class="pill new">必填</span></td><td>枚举：&lt;通过&gt; / &lt;驳回&gt;</td><td>用户输入</td></tr>
+              <tr><td>&lt;驳回原因&gt; <span class="pill new">条件必填</span></td><td>10–500 字符；结论为&lt;驳回&gt;时必填，为&lt;通过&gt;时该字段不渲染</td><td>用户输入</td></tr>
+              <tr><td>&lt;通知范围&gt;</td><td>多选；默认勾选&lt;通知对方&gt;</td><td>用户输入，有默认值</td></tr>
+              <tr><td>&lt;只读字段&gt;</td><td>随抽屉一次下发，不可编辑</td><td>来源列表接口（不额外发请求）</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="spec cond">
+          <span class="spec-label">② 前置条件、排序机制、刷新机制</span>
+          <table class="data">
+            <tr><th style="width:33%">前置条件</th><th style="width:34%">排序机制</th><th>刷新机制</th></tr>
+            <tr>
+              <td>1. 当前用户有写权限且是任务归属人（§3.2.2）；<br>2. 对象处于可审批状态；<br>3. 否则<b>按钮不渲染</b>，而非渲染后置灰。</td>
+              <td>1. 表单字段顺序写死，与本表 ① 一致；<br>2. 下拉选项按枚举定义顺序，<b>不</b>按字典序重排。</td>
+              <td>1. 打开即用列表已下发的数据渲染，不二次请求；<br>2. 提交成功后<b>就地</b>更新来源行 + 角标计数，不整表重取；<br>3. 提交失败保留全部已填内容。</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="spec state">
+          <span class="spec-label">③ 状态流转</span>
+          <div class="flow">
+            <span class="node">&lt;表单空&gt;</span><span class="lbl">必填齐备</span><span class="arw">→</span>
+            <span class="node">&lt;可提交&gt;</span><span class="lbl">二次确认</span><span class="arw">→</span>
+            <span class="node warnn">&lt;提交中&gt;</span><span class="lbl">接口成功</span><span class="arw">→</span>
+            <span class="node term">&lt;已通过&gt; / &lt;已驳回&gt;</span>
+          </div>
+          <div class="flow">
+            <span class="node warnn">&lt;提交中&gt;</span><span class="lbl">接口报错 / version 冲突</span><span class="arw">⇢</span>
+            <span class="node">&lt;可提交&gt;</span><span class="lbl">输入全部保留</span>
+          </div>
+          <p style="color:var(--muted);font-size:12px;margin:2px 0 10px">实线 <b>→</b> = 正向推进；虚线箭头 <b>⇢</b> = 失败回退。只有 <span class="mst success">&lt;已通过&gt;</span> / <span class="mst error">&lt;已驳回&gt;</span> 是终态，回退态<b>不清空</b>用户已填内容。</p>
+          <table class="data">
+            <tr><th style="width:150px">来源态</th><th style="width:34%">触发 / 条件</th><th>目标态</th></tr>
+            <tr><td>表单空（主按钮置灰）</td><td>必填项全部填妥且校验通过</td><td>可提交（主按钮亮起）</td></tr>
+            <tr><td>可提交</td><td>点击主按钮 → 二次确认 → 提交中</td><td><span class="mst success">&lt;已通过&gt;</span>，抽屉关闭</td></tr>
+            <tr><td>可提交</td><td>点击危险按钮 → 二次确认 → 提交中</td><td><span class="mst error">&lt;已驳回&gt;</span>，抽屉关闭</td></tr>
+            <tr><td>提交中</td><td>接口报错</td><td>回到可提交 + 字段下报错，<b>输入全部保留</b></td></tr>
+          </table>
+        </div>
+
+        <div class="spec inter">
+          <span class="spec-label">④ 交互操作（正常 + 异常）</span>
+          <ol class="inter-list">
+            <li><span class="marker">1</span><span class="tag normal">正常</span>选择&lt;驳回&gt; → 展开&lt;驳回原因&gt;文本域与字数计数；选择&lt;通过&gt; → 该字段整块收起。</li>
+            <li><span class="marker">2</span><span class="tag normal">正常</span>必填齐备 → 主按钮由置灰转为可点；点击 → 二次确认对话框 → 确认后提交。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>原因字数超上限 → <code>.mcnt.over</code> 变红并拦截提交，<b>不</b>静默截断已输入内容。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>字段校验失败 → <code>.v.err</code> + 字段下方红字提示，<b>不</b>用 toast（toast 飘走后找不到是哪个字段）。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>提交时对象已被他人处理（version 冲突）→ 提示「该任务已被 &lt;操作人&gt; 处理」并刷新该行，<b>不</b>覆盖对方结果。</li>
+            <li><span class="marker err">!</span><span class="tag err">异常</span>重复点击提交 → 同一 <code>Idempotency-Key</code> 复用首次结果，不产生第二条审批记录。</li>
+          </ol>
+          <div class="dialog">
+            <div class="dt">&lt;确认通过&gt;</div>
+            <div class="db">通过后<b>不可撤销</b>，是否继续？</div>
+            <div class="da"><span class="btn ghost">取消</span><span class="btn primary">确定</span></div>
+          </div>
+          <div class="dialog">
+            <div class="dt">&lt;确认驳回&gt;</div>
+            <div class="db">驳回原因将同步给对方，确定驳回？</div>
+            <div class="da"><span class="btn ghost">取消</span><span class="btn danger">驳回</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.3 非功能需求 -->
+    <h3 id="s33">3.3 非功能需求</h3>
     <table class="data">
-      <tr><th>#</th><th>变更点</th><th>v1.0 现状</th><th>v2.0（本版）</th><th>影响面</th></tr>
-      <tr><td>C1</td><td>&lt;change&gt;</td><td>&lt;v1 state&gt;</td><td>&lt;v2 state&gt;</td><td><b>纯前端</b> / 前端 + 后端&lt;…&gt;</td></tr>
-      <tr><td>C2</td><td>&lt;change&gt;</td><td>无</td><td>&lt;new capability&gt;</td><td>&lt;fe/be impact&gt;</td></tr>
+      <tr><th style="width:110px">类别</th><th>要求</th></tr>
+      <tr><td>埋点</td><td>Tab 进入、渠道切换、维度切换、导出、分享生成 / 撤销，各一个事件，带对象 ID 与筛选快照</td></tr>
+      <tr><td>性能</td><td>概览复合接口 P95 &lt; 800ms；首屏可交互 &lt; 2s；导出 5k 行 &lt; 3s</td></tr>
+      <tr><td>兼容性</td><td>Chrome / Safari / Edge 最近两个大版本；最小宽度 1280px，&lt;980px 隐藏侧栏</td></tr>
+      <tr><td>安全</td><td>排序 / 筛选列走<b>白名单</b>，不拼接用户输入；公开页作用域从 token 派生（G5）；失效原因不区分</td></tr>
+      <tr><td>一致性</td><td>同页任意两处同名指标必须相等（G6）；导出与页面读同一快照</td></tr>
+      <tr><td>可观测性</td><td>物化任务成功 / 失败 / 耗时打点并告警；接口错误率大盘</td></tr>
+      <tr><td>测试</td><td>分层断点、除零、加权、时区四类口径<b>各配单测钉死</b></td></tr>
     </table>
 
-    <!-- ============ 五 待确认 (every row carries a default; resolve in place) ============ -->
+    <!-- 3.4 修改记录 -->
+    <h3 id="s34">3.4 修改记录</h3>
+    <table class="data">
+      <tr><th style="width:90px">版本</th><th style="width:130px">日期</th><th>说明</th></tr>
+      <tr><td>v0.9</td><td>YYYY-MM-DD</td><td>首版定稿并落地</td></tr>
+      <tr><td>v1.0</td><td>YYYY-MM-DD</td><td>依据 &lt;来源&gt; 改版：&lt;变更点摘要&gt;</td></tr>
+    </table>
+
+    <!-- 四、本版变更点 -->
+    <h2 class="sec" id="s4">四、本版变更点（相对 v0.9 已实现）</h2>
+    <div class="callout info">供研发聚焦，仅列<b>需要改动</b>的项；未列出的板块口径与实现<b>沿用 v0.9</b>。</div>
+    <table class="data">
+      <tr><th style="width:52px">#</th><th style="width:170px">变更点</th><th style="width:26%">现状（v0.9）</th><th style="width:26%">本版（v1.0）</th><th>影响面</th></tr>
+      <tr><td>C1</td><td>Geo 筛选 <span class="pill new">本版新增</span></td><td>无</td><td>明细列表新增多选 Geo 筛选</td><td>前端 + 后端（新增筛选参数与白名单）</td></tr>
+      <tr><td>C2</td><td>渠道 chip <span class="pill new">本版改造</span></td><td>多选</td><td>改为单选，新增 All 汇总项</td><td><b>纯前端</b></td></tr>
+      <tr><td>C3</td><td>条目徽标</td><td>合并计数</td><td>Master / Mirrored 分别计数</td><td>前端 + 后端（返回结构变更）</td></tr>
+      <tr><td>C4</td><td>导出</td><td>后端生成文件</td><td>前端生成 xlsx，后端只下发数据</td><td>前端 + 后端（删除文件服务）</td></tr>
+    </table>
+
+    <!-- 五、待确认项 -->
     <h2 class="sec" id="s5">五、待确认项（均给默认值，不阻塞开工）</h2>
     <table class="data">
-      <tr><th style="width:40px">#</th><th>问题</th><th>默认取值（未另行拍板即按此实现）</th></tr>
-      <tr><td>1</td><td>&lt;open question&gt;</td><td>&lt;sensible default&gt;</td></tr>
-      <tr><td>2</td><td>&lt;resolved question&gt; <span class="pill new">已明确</span></td><td><b>&lt;confirmed answer&gt;</b>（原默认已被拍板替换，保留决策痕迹）</td></tr>
+      <tr><th style="width:40px">#</th><th>问题</th><th style="width:40%">默认取值（未另行拍板即按此实现）</th></tr>
+      <tr><td>1</td><td>&lt;渠道 C&gt; 是否纳入渠道筛选？ <span class="pill new">已明确</span></td><td><b>本版不纳入</b>（原默认已被拍板替换，保留决策痕迹）</td></tr>
+      <tr><td>2</td><td>优质内容取前几条？</td><td>前 <b>10</b> 条，不足则全部</td></tr>
+      <tr><td>3</td><td>分享链接 TTL？</td><td><b>30 天</b>，超管可配，改配置不影响已发链接</td></tr>
+      <tr><td>4</td><td>导出行数上限？</td><td><b>50,000</b> 行；超限提示缩小筛选范围，不静默截断</td></tr>
     </table>
 
-    <!-- ============ 修改记录 (document edits over time; distinct from 变更点) ============ -->
-    <h2 class="sec" id="s6">六、修改记录</h2>
+    <!-- 附录 A -->
+    <h2 class="sec" id="sb">附录 A · 指标口径字典</h2>
     <table class="data">
-      <tr><th>版本</th><th>日期</th><th>说明</th></tr>
-      <tr><td>v1.0</td><td>YYYY-MM-DD</td><td>首版定稿并落地</td></tr>
-      <tr><td>v2.0</td><td>YYYY-MM-DD</td><td>依据 &lt;input&gt; 改版：&lt;summary of change points&gt;</td></tr>
+      <tr><th style="width:180px">指标</th><th style="width:36%">公式</th><th>边界与说明</th></tr>
+      <tr><td>Engagements</td><td>Likes + Comments + Shares + Saves</td><td>Saves 在 DB 中名为 <code>collects</code>（G1）</td></tr>
+      <tr><td>Engagement Rate %</td><td>ΣEngagements ÷ ΣViews × 100</td><td>加权（G2）；ΣViews = 0 → "—"（G3）</td></tr>
+      <tr><td>View Rate %</td><td>ΣViews ÷ ΣFollowers × 100</td><td>可 &gt; 100%（跨圈层传播），<b>不</b>截断到 100</td></tr>
+      <tr><td>Data as of</td><td>快照物化完成时刻</td><td>固定 UTC（G4），不随浏览器时区变化</td></tr>
     </table>
 
-    <div class="foot">&lt;Feature&gt; PRD · 本文件为自包含 HTML，可直接 file:// 打开、分享、打印为 PDF。</div>
+    <div class="foot">
+      &lt;Product&gt; PRD v1.0 · YYYY-MM-DD · &lt;一句话来源说明&gt;。<br>
+      本文档核心「需求·功能·交互说明」按四维范式（字段 / 前置·排序·刷新 / 状态流转 / 交互）展开；本文件为自包含 HTML，可直接 <code>file://</code> 打开、分享、打印为 PDF，无任何外部请求。
+    </div>
   </main>
 </div>
 
 <script>
-  // Minimal scroll-spy: highlight the TOC link whose section is in view. Self-contained, no deps.
+  // TOC 滚动高亮 —— 本文件唯一的脚本块。ES5，无依赖，不联网。
   (function(){
     var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
-    var map = links.map(function(a){ var el = document.querySelector(a.getAttribute('href')); return {a:a, el:el}; })
-                   .filter(function(x){ return x.el; });
-    function onScroll(){
-      var y = window.scrollY + 120, cur = null;
-      map.forEach(function(x){ if(x.el.offsetTop <= y) cur = x.a; });
-      links.forEach(function(a){ a.classList.remove('active'); });
-      if(cur) cur.classList.add('active');
-    }
-    window.addEventListener('scroll', onScroll, {passive:true});
-    onScroll();
+    var map = {};
+    links.forEach(function(a){
+      var id = a.getAttribute('href').slice(1);
+      var el = document.getElementById(id);
+      if(el) map[id] = a;
+    });
+    var targets = Object.keys(map).map(function(id){return document.getElementById(id);});
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(l){l.classList.remove('active');});
+          var a = map[e.target.id];
+          if(a){a.classList.add('active');
+            a.scrollIntoView({block:'nearest'});
+          }
+        }
+      });
+    },{rootMargin:'-10% 0px -80% 0px',threshold:0});
+    targets.forEach(function(t){obs.observe(t);});
   })();
 </script>
 </body>

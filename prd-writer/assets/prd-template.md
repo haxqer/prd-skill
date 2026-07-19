@@ -1,3 +1,18 @@
+> **This is the lightweight alternative, not the default.** Use it only when the user explicitly asked for Markdown,
+> or when the change is a single-screen tweak with no UI surface to annotate. The default deliverable of this skill is
+> a single self-contained **annotated HTML PRD** — start from `assets/annotated-html-prd-template.html` and follow
+> `references/annotated-html-mockups.md`. If the spec needs an annotated mockup, a `.spec` block, a pill, or a marker,
+> it needs the HTML format instead: this Markdown path and its renderer cannot carry any of them.
+>
+> **>>> LANGUAGE <<<** — this skeleton is written in English only because it has to be written in *some* language.
+> **Write the document in the user's language**, not in this template's. Translate every section heading and hint
+> below (`Product intro` → `产品简介`, `Industry overview` → `行业与业务背景`, `Who am I` → `我是谁`, and so on) to
+> match the language of the user's request and of their existing PRD corpus. Keep product names, metric names,
+> entity names, and code identifiers in their original English — only the connective prose is translated. Pass the
+> matching `--lang` when you render: `python3 scripts/prd_to_html.py prd.md -o prd.html --lang zh-CN`.
+
+---
+
 # <Product Name> — Product Requirements Document (PRD)
 
 > Owner: ____ | Version: v____ | Last updated: YYYY-MM-DD
@@ -110,10 +125,12 @@ flowchart LR
 
 #### 3.2.6 Page annotations
 
-<!-- Number every mockup / visual, matching the P-01/P-02 above, so all three line up.
-     To put a pixel-faithful, numbered mockup *inside* the doc (not a link to an external design tool),
-     use the annotated-mockup triad — see references/annotated-html-mockups.md and
-     assets/annotated-html-prd-template.html. -->
+Number every mockup / visual to match the page numbers above, so the spec and the screen line up.
+
+**If you are filling this section in, you are probably in the wrong format.** A pixel-faithful, numbered mockup that
+lives *inside* the doc — rather than behind a link to a design tool — is the annotated-mockup triad, and Markdown
+cannot render it. Switch to `assets/annotated-html-prd-template.html` and `references/annotated-html-mockups.md`.
+Keep this section in Markdown only when the page annotations are links out to an external design file.
 
 ### 3.3 Non-functional requirements
 

@@ -4,13 +4,13 @@
     {
       "id": 1,
       "prompt": "We want to add a 'want-to-buy' feature to a used-book trading app: a user can post a book they want (title, target price, condition requirement), and sellers who have it can see the post and get in touch. Write a requirements document for engineering.",
-      "expected_output": "A PRD focused on this feature: product/feature intro; (if new entities) E-R diagram; role-permission; business/page flowcharts; global states; per-page four-dimension function & interaction spec (fields with data sources, state transitions, normal and abnormal interactions); page numbers; non-functional requirements; change log. Reasonably trimmed for an iteration (no industry overview).",
+      "expected_output": "A PRD focused on this feature: product/feature intro; (if new entities) E-R diagram; role-permission; business/page flowcharts; global states; per-page four-dimension function & interaction spec (fields with data sources, state transitions, normal and abnormal interactions); page numbers; non-functional requirements; change log. Reasonably trimmed for an iteration (no industry overview). Delivered in the skill's default format: one self-contained annotated HTML file.",
       "files": []
     },
     {
       "id": 2,
       "prompt": "Write a PRD for the 'employee permission management' module of an admin back-office system, with three roles (super admin, department admin, regular employee), able to assign roles, add/remove employees, and control menu visibility.",
-      "expected_output": "A B2B PRD emphasizing the role-permission matrix, an E-R diagram (employee/role/permission relationships), fields with data sources, state transitions, permission-related exceptions (unauthorized access, expired session), and non-functional requirements; clear structure carried in tables.",
+      "expected_output": "A B2B PRD emphasizing the role-permission matrix, an E-R diagram (employee/role/permission relationships), fields with data sources, state transitions, permission-related exceptions (unauthorized access, expired session), and non-functional requirements; clear structure carried in tables. The role-permission matrix must use `.tick`/`.cross` cells rather than prose, and the E-R diagram must be inline SVG — not Mermaid, not ASCII.",
       "files": []
     },
     {
@@ -22,7 +22,31 @@
     {
       "id": 4,
       "prompt": "We already shipped a campaign performance report. The boss redrew the Overview and Influencer screens: the platform breakdown should become single-select chips, add a publish-date range to the Overview, and add a Geo filter to the Influencer table. Write the v2 PRD for engineering.",
-      "expected_output": "An iteration PRD that specs the delta, not the whole product: a change-points table (v1 vs v2 with a build-impact column) plus a stated 'everything else unchanged'; recurring metric calibers captured as global rules cited by ID rather than restated; an open-questions table where every row carries a default (and resolved ones are marked in place); decision-driven writing (a control the demo drew but a later decision cut is recorded as deferred, not shown as buildable). Numbered page annotations tie the spec to the redrawn screens; industry overview omitted. May optionally be delivered as a self-contained annotated HTML PRD (annotated-mockup triad + verification).",
+      "expected_output": "An iteration PRD that specs the delta, not the whole product: a change-points table (v1 vs v2 with a build-impact column) plus a stated 'everything else unchanged'; recurring metric calibers captured as global rules cited by ID rather than restated; an open-questions table where every row carries a default (and resolved ones are marked in place); decision-driven writing (a control the demo drew but a later decision cut is recorded as deferred, not shown as buildable). Numbered page annotations tie the spec to the redrawn screens; industry overview omitted. Must be delivered as a self-contained annotated HTML PRD (annotated-mockup triad + verification pass), since the boss redrew two screens and the spec has to show them.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "我们的 CRM 要新增一个「客户线索池」模块：销售可以认领线索、转移线索、批量导入线索，管理员可以设置认领上限和自动回收规则。帮我写一份给研发的需求文档。",
+      "expected_output": "FAILS IF the document is written in English. The PRD must be written in Chinese, because the request is in Chinese. Specifically: `<html lang=\"zh-CN\">` (not `lang=\"en\"`); top-level section headings in Chinese numerals — 一、产品简介 / 二、行业与业务背景 / 三、版本管理 / 四、本版变更点 / 五、待确认项 — with zero English-only section titles; the four spec labels rendered as `① 字段、字段说明、数据来源` / `② 前置条件、排序机制、刷新机制` / `③ 状态流转` / `④ 交互操作（正常 + 异常）`; annotation legend headers exactly `标号` / `含义（元素）` / `交互` / `逻辑 / 数据来源`; the body font stack retains \"PingFang SC\",\"Hiragino Sans GB\",\"Microsoft YaHei\". Product, metric, entity names and code identifiers stay in their original English (e.g. `lead_pool`, CRM) inside otherwise-Chinese prose.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "Spec the new checkout screen for our mobile grocery app: cart summary, delivery slot picker, promo-code field, payment method selector, and a place-order button with a confirm dialog. Hand this to engineering.",
+      "expected_output": "FAILS IF the screens are drawn as ASCII box art, a Mermaid diagram, or a link to an external design tool. The deliverable is one self-contained HTML file containing at least one `.anno-wrap` triad per UI page: an `.anno-title` prefixed 🖼, a pure-CSS `.mock` recreation of the screen, and a `table.data` legend. Every `.mk` marker in a mock has exactly one matching `.nbadge` row — counts balanced, numbering Arabic, ascending, no gaps or duplicates, restarting at 1 in each `.anno-wrap`. Zero `<pre>` blocks, zero `┌`/`└`/`│` box-drawing characters, zero `mermaid`, zero external `http(s)://` in any `src`/`href`/`@import`. The confirm dialog is a `.dialog` mock, not a prose description. `scripts/verify_prd_html.py` exits 0.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "Write a PRD for a self-serve API key management page in our developer portal: list keys, create a key with scopes and an expiry, reveal-once secrets, rotate, and revoke.",
+      "expected_output": "FAILS IF the document is written in Chinese. The request is in English, so the PRD is in English: `<html lang=\"en\">` (not `lang=\"zh-CN\"`), English section headings — Product intro / Version management / Product design / Change points / Open questions — and the four spec labels in English while keeping their circled numerals: `① Fields, description, data source` / `② Preconditions, sorting, refresh` / `③ State transitions` / `④ Interactions (normal + abnormal)`; legend headers `No.` / `Element` / `Interaction` / `Logic / data source`. The CJK font stack remains in the stylesheet regardless. This eval and eval 5 must both pass: the language instruction follows the user rather than being hardcoded in either direction.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "Tiny one: on the account settings page we're changing the 'Delete account' button from an immediate delete to a 30-day grace period — the button now schedules deletion and shows a banner with a Cancel link until it fires. No layout changes. Just write it up for the dev who's picking it up, Markdown is fine.",
+      "expected_output": "FAILS IF the model hand-authors a full annotated HTML PRD. This is the documented exception: the user explicitly asked for Markdown, and the change is a single-screen tweak with no new UI surface to annotate. A short focused Markdown spec is correct — state transitions for the account (active → pending_deletion → deleted, and pending_deletion → active on cancel), the trigger and timing of the 30-day job, the banner copy and where it shows, the abnormal paths (job runs while account already reactivated, cancel clicked after deletion fired, concurrent delete requests), and analytics. No industry overview, no E-R diagram, no annotated mockup. The default HTML format must not over-fire on trivial no-UI changes.",
       "files": []
     }
   ]

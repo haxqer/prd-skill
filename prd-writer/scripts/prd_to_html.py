@@ -1,16 +1,36 @@
 #!/usr/bin/env python3
-"""Render a finished PRD Markdown file into ONE polished, self-contained HTML page.
+"""Renderer for the prd-writer skill's LIGHTWEIGHT MARKDOWN ALTERNATIVE — not the default path.
 
-This is the companion renderer for the "prd-writer" skill. A PRD is authored and
-version-controlled as Markdown, but stakeholders often want something nicer to read,
-share, or print to PDF. This script turns the Markdown into a single self-contained
-HTML document with:
+THIS RENDERER CANNOT PRODUCE AN ANNOTATED HTML PRD. Its stylesheet is a separate,
+simpler design system with no overlap with the annotated-mockup one. It cannot render:
+
+  - annotated mockups (`.anno-wrap` / `.mock` / `.anno`),
+  - numbered markers or their legend rows (`.mk` / `.nbadge`),
+  - the four-dimension spec blocks (`.spec field` / `cond` / `state` / `inter`),
+  - pills, tags, callouts, screens, flow chains, or inline-SVG diagrams
+    (`.pill` / `.tag` / `.callout` / `.screen` / `.flow` / `.diagram` / `.marker`).
+
+None of those class names exist anywhere in this file's CSS constant. Feeding annotated
+markup through this script emits unstyled DOM, not a styled mockup. The two modes DO NOT
+combine. A PRD that needs any of the above must be hand-authored from
+`assets/annotated-html-prd-template.html` following `references/annotated-html-mockups.md`
+and `references/design-system.md`, and checked with `scripts/verify_prd_html.py`.
+
+Use this script only when the user explicitly asked for Markdown, or the spec is a
+one-screen change with no UI surface to annotate.
+
+MERMAID IS NOT SELF-CONTAINED. ```mermaid blocks are rendered by importing Mermaid from a
+CDN, so any document containing one requires network access and will show only raw diagram
+source offline. `assets/vendor/mermaid.min.js` does not ship with this skill; if you drop a
+UMD build there it is inlined instead and the output becomes genuinely offline-capable.
+Output with zero mermaid blocks is fully self-contained today.
+
+What it does produce, from a finished PRD Markdown file, as ONE HTML page:
 
   - a sticky table-of-contents sidebar (with scroll-spy active highlighting),
   - a styled document header (title / owner / version / last-updated parsed from the top),
   - GitHub-style tables (sticky header, zebra rows, horizontal scroll for wide tables),
   - automatic status badges for common words (Done / In progress / Unused / In use / ...),
-  - rendered Mermaid diagrams (E-R, flow, state) via CDN with an offline fallback,
   - blockquote callouts, code styling, heading hover-anchors, and print styling.
 
 Dependency strategy (robustness):
@@ -23,6 +43,12 @@ Dependency strategy (robustness):
 
 Usage:
     python3 scripts/prd_to_html.py INPUT.md [-o OUTPUT.html] [--title "Custom Title"]
+                                            [--lang zh-CN]
+
+`--lang` sets the `<html lang>` attribute. It defaults to auto-detection from the document
+body: CJK-dominant content yields `zh-CN`, anything else `en`. The font stack always carries
+"PingFang SC" / "Hiragino Sans GB" / "Microsoft YaHei" so Chinese renders correctly whatever
+the lang tag says.
 
 The default OUTPUT is INPUT with its extension swapped to .html.
 """
@@ -76,6 +102,43 @@ def reinsert_mermaid(html_text: str, blocks) -> str:
         html_text = html_text.replace("<p>" + token + "</p>", node)
         html_text = html_text.replace(token, node)
     return html_text
+
+
+# --------------------------------------------------------------------------- #
+# Language detection
+# --------------------------------------------------------------------------- #
+# The `<html lang>` attribute must match the language actually written in the body.
+# A wrong lang tag breaks screen readers, hyphenation, and font selection, so it is
+# detected from the content rather than hardcoded. `--lang` overrides this entirely.
+_CJK_RE = re.compile(
+    "["
+    "一-鿿"      # CJK Unified Ideographs
+    "㐀-䶿"      # CJK Extension A
+    "　-〿"      # CJK punctuation （）、。「」
+    "＀-￯"      # Fullwidth forms
+    "]"
+)
+_LATIN_LETTER_RE = re.compile(r"[A-Za-z]")
+
+
+def detect_lang(text: str) -> str:
+    """Guess the BCP-47 lang tag for a document body: 'zh-CN' if CJK-dominant, else 'en'.
+
+    Chinese is information-dense: the same content needs far fewer CJK characters than
+    Latin ones, and PRDs keep product/metric/entity names and code identifiers in English
+    even when the prose is Chinese. A naive majority vote therefore reports "English" for
+    documents that read as Chinese. Counting one CJK character as worth several Latin
+    letters corrects for that; the 0.5 threshold then sits comfortably clear of both a
+    Chinese PRD full of English identifiers and an English PRD quoting a few Chinese terms.
+    """
+    # Ignore fenced code blocks: they are identifiers, not prose, and are ~always Latin.
+    prose = re.sub(r"```.*?```", " ", text, flags=re.DOTALL)
+    cjk = len(_CJK_RE.findall(prose))
+    latin = len(_LATIN_LETTER_RE.findall(prose))
+    if not cjk:
+        return "en"
+    weighted = cjk * 4.0
+    return "zh-CN" if weighted / (weighted + latin) >= 0.5 else "en"
 
 
 # --------------------------------------------------------------------------- #
@@ -584,6 +647,12 @@ def mermaid_script(script_dir: str) -> str:
     skill root, i.e. the parent of scripts/), it is INLINED for fully offline
     rendering. Otherwise a CDN module import is used, which degrades gracefully
     to showing the raw diagram source when offline.
+
+    NOTE: the skill does NOT ship assets/vendor/, so the CDN path is what actually
+    runs unless someone vendors the library themselves. Any output containing a
+    mermaid block is therefore network-dependent and not self-contained. This is
+    the one hole in this renderer's self-containment guarantee; documents with no
+    mermaid blocks are fully offline-capable.
     """
     # To vendor Mermaid for offline use, download the UMD build and save it as:
     #   assets/vendor/mermaid.min.js
@@ -645,6 +714,7 @@ body {
   color: var(--fg);
   background: var(--bg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
     "Apple Color Emoji", "Segoe UI Emoji", sans-serif;
   font-size: 16px;
   line-height: 1.65;
@@ -935,7 +1005,7 @@ def render_meta_bar(meta_chips) -> str:
     return '<div class="meta-bar">{0}</div>'.format("".join(chips))
 
 
-def assemble_page(title, meta_chips, toc_html, body_html, mermaid_js) -> str:
+def assemble_page(title, meta_chips, toc_html, body_html, mermaid_js, lang="en") -> str:
     header_parts = ['<header class="doc-header">']
     header_parts.append("<h1>{0}</h1>".format(html.escape(title, quote=False)))
     header_parts.append(render_meta_bar(meta_chips))
@@ -946,7 +1016,7 @@ def assemble_page(title, meta_chips, toc_html, body_html, mermaid_js) -> str:
 
     return (
         "<!doctype html>\n"
-        '<html lang="en">\n<head>\n'
+        '<html lang="{lang}">\n<head>\n'
         '<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         "<title>{title}</title>\n"
@@ -960,6 +1030,7 @@ def assemble_page(title, meta_chips, toc_html, body_html, mermaid_js) -> str:
         "<script>{spy}</script>\n"
         "</body>\n</html>\n"
     ).format(
+        lang=html.escape(lang, quote=True),
         title=html.escape(title, quote=False),
         css=CSS,
         sidebar=sidebar,
@@ -973,10 +1044,18 @@ def assemble_page(title, meta_chips, toc_html, body_html, mermaid_js) -> str:
 # --------------------------------------------------------------------------- #
 # Orchestration
 # --------------------------------------------------------------------------- #
-def convert(markdown_text: str, title_override=None, script_dir=None):
-    """Full pipeline: Markdown text -> complete HTML document string."""
+def convert(markdown_text: str, title_override=None, script_dir=None, lang=None):
+    """Full pipeline: Markdown text -> complete HTML document string.
+
+    `lang` sets the <html lang> attribute; None auto-detects it from the content.
+    """
     if script_dir is None:
         script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # 0. Resolve the document language before the body is transformed to HTML.
+    if not lang:
+        lang = detect_lang(markdown_text)
+        sys.stderr.write("[prd_to_html] detected lang={0} (override with --lang).\n".format(lang))
 
     # 1. Parse the document header (title + meta bar) and strip it from the body.
     parsed_title, meta_chips, body_md = parse_header(markdown_text)
@@ -1007,13 +1086,36 @@ def convert(markdown_text: str, title_override=None, script_dir=None):
 
     # 7. Build TOC and Mermaid script, then assemble the page.
     toc_html = build_toc(headings)
-    mermaid_js = mermaid_script(script_dir)
-    return assemble_page(title, meta_chips, toc_html, body_html, mermaid_js)
+    # Only embed the Mermaid loader when the document actually has a diagram.
+    # Emitting it unconditionally would make every output — including
+    # diagram-free ones — carry a CDN import and break the skill's
+    # zero-external-requests rule.
+    mermaid_js = mermaid_script(script_dir) if mermaid_blocks else ""
+    if mermaid_blocks:
+        sys.stderr.write(
+            "[prd_to_html] warning: {0} mermaid block(s) present. Mermaid loads from a CDN, "
+            "so this output is NOT self-contained and shows only raw diagram source "
+            "offline.\n".format(len(mermaid_blocks))
+        )
+    return assemble_page(title, meta_chips, toc_html, body_html, mermaid_js, lang=lang)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(
-        description="Render a PRD Markdown file into one polished, self-contained HTML page.",
+        description=(
+            "Render a Markdown PRD into one polished HTML page. This serves the skill's "
+            "LIGHTWEIGHT MARKDOWN ALTERNATIVE only: it CANNOT render annotated mockups, "
+            ".spec blocks, .mk/.nbadge markers, pills, tags, callouts, flow chains, or any "
+            "other part of the annotated-HTML design system -- those class names do not "
+            "exist in this script's stylesheet. A PRD needing them must be hand-authored "
+            "from assets/annotated-html-prd-template.html instead."
+        ),
+        epilog=(
+            "Self-contained output requires zero ```mermaid blocks: Mermaid is imported "
+            "from a CDN, so a document containing one needs network access and degrades to "
+            "raw diagram source offline. Dropping a Mermaid UMD build at "
+            "assets/vendor/mermaid.min.js makes it inline instead."
+        ),
     )
     parser.add_argument("input", help="Path to the input Markdown (.md) file.")
     parser.add_argument(
@@ -1024,6 +1126,13 @@ def main(argv=None):
     parser.add_argument(
         "--title",
         help="Override the document title (default: parsed from the first H1).",
+    )
+    parser.add_argument(
+        "--lang",
+        help=(
+            "BCP-47 tag for <html lang>, e.g. zh-CN or en. Default: auto-detected from the "
+            "document (CJK-dominant content yields zh-CN, otherwise en)."
+        ),
     )
     args = parser.parse_args(argv)
 
@@ -1038,7 +1147,7 @@ def main(argv=None):
     with open(args.input, "r", encoding="utf-8") as fh:
         markdown_text = fh.read()
 
-    html_doc = convert(markdown_text, title_override=args.title)
+    html_doc = convert(markdown_text, title_override=args.title, lang=args.lang)
 
     with open(output, "w", encoding="utf-8") as fh:
         fh.write(html_doc)

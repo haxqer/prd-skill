@@ -5,8 +5,8 @@ Go through each item before handing off to engineering. The one core test: **aft
 ## 1. Readability (so engineers will actually read it)
 - [ ] Is the structure clearly layered, so any content can be located in seconds?
 - [ ] Does it carry structured info in tables/flowcharts instead of walls of text?
-- [ ] Is it organized in Markdown, focused, with no filler?
-- [ ] Does every page/function have a number (P-01, ...) that lines up with the mockups?
+- [ ] Is it tightly organized and focused, with no filler — whatever the format?
+- [ ] Does every page/function have a number (`P0`, `P1`, `P2.1`, ...) that lines up with the mockups?
 
 ## 2. Rigorous logic (so engineers stop coming back)
 - [ ] Does every field state its meaning, constraints (type/length/required/default), and **data source**?
@@ -30,13 +30,26 @@ Go through each item before handing off to engineering. The one core test: **aft
 - [ ] Is there a change-log table (version / date / author / change)?
 - [ ] Are the version number, owner, and update date all labeled?
 
-## 6. Iteration & annotated-HTML mode (when applicable — see `iterating-a-live-product.md`, `annotated-html-mockups.md`)
+## 6. Iteration (when the product is already live — see `iterating-a-live-product.md`)
 - [ ] Iteration/v2: is there a **change-points table** (what changed vs the last version + build **impact**), with "everything else unchanged" stated once?
 - [ ] Are recurring calibers defined as **global rules with IDs** and **cited by ID** in modules (not restated, not silently diverging)?
 - [ ] Does every **open question carry a default**, and are resolved ones marked **in place** (not deleted), preserving the decision trail?
 - [ ] Does the doc encode **decisions** — is any control a demo drew but a decision cut moved to open-questions as *deferred*, not left on the mockup as buildable?
-- [ ] Annotated HTML: does every mockup **marker** have a matching **explanation-table row**, numbered 1..N continuously?
-- [ ] Annotated HTML: did you run the four checks (tag balance · marker↔table continuity · clip check · stale-string grep) after the last edit?
+
+## 7. Format gates (always — this is where the skill most often fails)
+
+The eight items below are not conditional. They apply to every PRD this skill produces, because the default
+deliverable is a single self-contained annotated HTML file (see `annotated-html-mockups.md`, `design-system.md`).
+The content can be flawless and the document still fail here — that is the exact failure these gates exist to catch.
+
+- [ ] Is it **one** `.html` file with **zero** external requests — no CDN script, no remote font, no remote image, no `@import`?
+- [ ] Does `<html lang="…">` match the language actually written in the body?
+- [ ] Does **every** page with a UI have an `.anno-wrap` triad, and does every `.mk` have exactly one `.nbadge` row — ascending, no gaps, no duplicates, restarting at 1 per `.anno-wrap`?
+- [ ] Are there **zero** `<pre>` blocks, **zero** ASCII box-drawing diagrams, and **zero** Mermaid? (If you drew `┌───┐`, you are in the wrong format.)
+- [ ] Are the three numbering systems kept **separate** — Arabic for `.mk`/`.nbadge`; circled ①②③④ only for the four spec dimensions and `.flow` node text; `.marker` Arabic for 正常 / normal items and a literal `!` for **every** 异常 / abnormal item?
+- [ ] Are facts carried by **markup rather than sentences** — `.pill new` on every changed item, `.tag err` on every error path, `.callout rule` on every non-negotiable, `.tick`/`.cross` in permission matrices?
+- [ ] Are the **TOC labels unique** and readable standalone, or did you dump raw heading text and end up with five entries reading the same thing?
+- [ ] Did **`scripts/verify_prd_html.py` exit clean**? Run it after the last edit — hand-authored HTML has no compiler, so this is the compiler.
 
 ## Trim reminder
-Not every PRD needs every box checked. Iterations can skip "Industry overview" and "E-R diagram (when no new entity)"; but the **four-dimension function spec, global states, and abnormal-path coverage** should almost never be dropped from any PRD.
+Not every PRD needs every box in sections 1–6 checked. Iterations can skip "Industry overview" and "E-R diagram (when no new entity)"; but the **four-dimension function spec, global states, and abnormal-path coverage** should almost never be dropped from any PRD — and **section 7 is never trimmed**.
